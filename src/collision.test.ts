@@ -11,6 +11,7 @@ import {
   obstacles,
   type Rect,
 } from "./domain";
+import { projectBounds } from "./roof-project";
 const rect = (x = 0, z = 0, width = 2, depth = 2, yaw = 0): Rect => ({
   x,
   z,
@@ -70,6 +71,9 @@ describe("旋转矩形平面检测", () => {
         ),
       ),
     ).toBe(true);
+  });
+  it("空项目边界返回零尺寸而非 NaN", () => {
+    expect(projectBounds([])).toEqual({ x: 0, z: 0, width: 0, depth: 0 });
   });
   it("默认两阵列和障碍物均无冲突", () => {
     expect(detect(defaultArrays())).toEqual([]);
