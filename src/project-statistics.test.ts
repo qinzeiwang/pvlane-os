@@ -1,0 +1,5 @@
+import {it,expect} from 'vitest';
+import {newRoof} from './roof-project';
+import {initial,defaultModule} from './domain';
+import {projectStatistics} from './project-statistics';
+it('按屋面汇总四项指标，不按组件分组',()=>{const a=newRoof('平屋面'),b=newRoof('坡屋面');a.roof={width:10,depth:20};a.arrays=[{...initial,id:"a",name:"a",rows:1,columns:2,tilt:0,module:{...defaultModule,length:2,width:1,power:650}}];b.roof={width:10,depth:10};b.pitch={kind:'single',axis:'x',high:1,percent:100,eave:3.5};b.arrays=[{...initial,id:"a",name:"a",rows:1,columns:3,module:{...defaultModule,length:2,width:1,power:500},surface:{sx:1,sz:0,height:0}}];const s=projectStatistics([a,b]);expect(s.regions[0].roofArea).toBe(200);expect(s.regions[1].roofArea).toBeCloseTo(100*Math.SQRT2);expect(s.regions[0].occupiedArea).toBeCloseTo(4);expect(s.regions[1].occupiedArea).toBeCloseTo(6);expect(s.total.count).toBe(5);expect(s.total.capacity).toBeCloseTo(2.8);expect(s.total.occupiedArea).toBeCloseTo(10);expect(s).not.toHaveProperty('groups');});

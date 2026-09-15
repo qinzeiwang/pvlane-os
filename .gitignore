@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.log
+public/pdfjs/
+test-output/
+coverage/
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx

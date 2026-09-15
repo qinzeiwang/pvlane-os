@@ -1,0 +1,126 @@
+/* Region inspector: one typography scale and one flat outline icon language. */
+.editor-float{font-family:var(--font-ui);font-size:12px}
+.editor-float .panel-titlebar{height:34px;min-height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:rgba(250,251,252,.82)}
+.editor-float .panel-titlebar h1{font-size:13px;line-height:20px;font-weight:600;margin:0;color:var(--text)}
+.editor-float .panel-titlebar .icon-button{width:24px;height:26px;color:var(--muted);padding:3px}
+.editor-float .panel-titlebar .ui-icon{width:18px;height:18px}
+.panel-titlebar button[aria-expanded=true] .ui-icon{transform:rotate(180deg)}
+.editor-float.is-collapsed{height:36px;min-height:36px}
+.viewport-tools>nav{height:36px;box-sizing:border-box}
+.editor-float .design-tabs[aria-label]{padding:0 10px!important}
+.editor-float .design-tabs button{font-size:12px}
+.editor-float .design-tabs .ui-icon{width:18px;height:18px;stroke-width:2}
+.editor-float .region-section{margin-bottom:12px;padding-bottom:12px}
+.editor-float .region-section h2{height:24px;min-height:24px;line-height:18px;font-size:12px;font-weight:600;color:var(--text-secondary);margin:0 0 8px}
+.editor-float .region-section h2 .ui-icon,.editor-float .region-section .icon-button .ui-icon{width:18px;height:18px;stroke-width:2;color:var(--page-tone)}
+.editor-float .region-section h2 .object-count{font-size:11px;color:var(--muted);font-weight:400}
+.editor-float .region-types button{font-size:12px;font-weight:400;color:var(--text-secondary);height:60px;gap:5px}
+.editor-float .region-types button[aria-pressed=true]{color:var(--site);font-weight:600}
+.editor-float .region-types .ui-icon{width:24px;height:24px;stroke-width:2}
+.editor-float .region-field{font-size:12px;color:var(--text-secondary)}
+.editor-float .region-field input{font-size:12px;color:var(--text);height:30px}
+.editor-float .region-objects{margin-bottom:10px;padding-bottom:10px}
+.editor-float .region-objects:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}
+.editor-float .region-objects h2{margin-bottom:4px}
+.object-rows{display:grid;gap:2px;max-height:230px;overflow-y:auto;scrollbar-width:thin}
+.object-row-wrap{border:1px solid transparent;border-radius:4px}
+.object-row-wrap.is-selected{background:#dcebf5a6;border-color:#b4cedf}
+.object-row{display:flex;align-items:center;min-height:30px;gap:4px}
+.editor-float .object-row-select{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;border:0;background:transparent;box-shadow:none;padding:5px 8px;font-size:12px;font-weight:400;color:var(--text-secondary)}
+.editor-float .object-row-select[aria-pressed=true]{color:var(--site);font-weight:600}
+.editor-float .object-row .object-row-edit{margin-right:4px;width:25px;height:25px;border:0;background:transparent}
+.object-row-wrap:hover{background:#ffffff60}
+.object-inline-editor{padding:4px 8px 8px}
+.editor-float .object-inline-editor .region-field{display:grid;grid-template-columns:48px 90px;align-items:center;margin:2px 0 8px}
+.object-edit-status{display:flex;gap:5px;align-items:center;margin-top:5px}
+.object-edit-status>span{flex:1;font-size:11px;color:var(--muted)}
+.editor-float .object-edit-status button{font-size:11px;height:27px;padding:4px 7px;white-space:nowrap}
+.editor-float .object-edit-status .cancel-object-edit{background:transparent;color:var(--text-secondary);border:1px solid #c6d6e0}
+.editor-float .object-edit-status .finish-object-edit{background:var(--site);color:white;border:1px solid var(--site)}
+.editor-float .object-edit-status .finish-object-edit .ui-icon{width:14px;height:14px;color:white}
+.editor-float .object-edit-status .object-delete{background:transparent;border:0;padding:4px 0;width:auto;margin-right:auto;color:#a24b45}
+.editor-float .object-edit-status .object-delete .ui-icon{color:var(--muted)}
+
+/* Shared roof selectors: compact elevation symbols, no nested pill frame. */
+.new-region .region-types,.editor-float .region-types{display:flex;gap:8px;background:transparent;border:0;padding:0}
+.new-region .region-types button,.editor-float .region-types button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;height:60px;gap:6px;border:1px solid #cad9e4;border-radius:5px;background:transparent;box-shadow:none;color:#596e7d;font:400 12px var(--font-ui)}
+.new-region .region-types button[aria-pressed=true],.editor-float .region-types button[aria-pressed=true]{background:#e1eff9;border-color:#6aa4cd;color:#286c9c;font-weight:600}
+.new-region .region-types .ui-icon,.editor-float .region-types .ui-icon{width:24px;height:24px;stroke-width:1.7}
+.new-region.project-dialog{width:min(380px,calc(100vw - 32px));padding:20px;gap:20px;border-radius:10px}
+.new-region .advanced-heading h2{font:600 15px var(--font-ui);margin:0}
+.new-region .advanced-heading .ui-icon{width:18px;height:18px}
+.new-region>div:last-child{display:flex;justify-content:flex-end;gap:8px}
+.new-region>div:last-child button{font:400 12px var(--font-ui);min-height:32px}
+.obstacle-height-input{display:flex;align-items:center;gap:8px;font-size:12px;white-space:nowrap}
+.obstacle-height-input input{width:72px;height:32px}
+.editor-float .region-section{border-bottom-color:#c9dbe680}
+.editor-float .region-objects h2{font-size:12px;letter-spacing:0}
+.editor-float .object-edit-status .finish-object-edit{display:flex;align-items:center;gap:4px}
+.new-region>div:last-child button:last-child{background:#397fae;border:1px solid #397fae;color:#fff}
+
+/* Layout inspector follows the same section hierarchy as Region. */
+.editor-float .layout-inspector h2{font-size:12px;font-weight:600;line-height:24px;color:var(--text-secondary);margin:0 0 8px}
+.editor-float .layout-inspector .module-picker{display:block;margin:0 0 16px;padding:0 0 14px;border-bottom:1px solid #b9d0c280}
+.module-picker-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.editor-float .module-picker-heading h2{margin:0}
+.editor-float .module-library-entry{display:flex;align-items:center;gap:5px;padding:3px 0;background:none;border:0;box-shadow:none;color:var(--page-tone);font:400 11px var(--font-ui)}
+.editor-float .module-library-entry .ui-icon{width:16px;height:16px;stroke-width:1.7}
+.editor-float .module-picker>select{display:block;width:100%;height:32px;margin:0;font-size:12px;border:1px solid #bed2c7;border-radius:5px;background:#ffffff70}
+.editor-float .module-picker small{display:flex;justify-content:space-between;gap:6px;margin:7px 0 0;font-size:11px;color:var(--muted)}
+.editor-float .layout-rules{margin:0;padding:0;border:0}
+.editor-float .layout-rules .auto-settings{margin:0;padding:0;border:0}
+.editor-float .layout-rules .compact-rules{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin:0 0 12px}
+.editor-float .layout-rules .rule-row{display:flex;flex-direction:column;align-items:stretch;text-align:left;gap:6px;font-size:12px;color:var(--text-secondary);min-width:0;line-height:18px}
+.editor-float .layout-rules .rule-row>span{height:18px;line-height:18px}
+.editor-float .layout-rules input,.editor-float .layout-rules select{width:100%;height:32px!important;font:400 12px var(--font-ui);padding:4px 8px;border-radius:5px;border:1px solid #bed2c7;background:#ffffff90;margin:0!important;box-sizing:border-box}
+.editor-float .layout-rules .choice-segment{height:32px;width:100%;display:flex;gap:0;padding:2px;border:1px solid #bed2c7;background:#e0ebe480;border-radius:5px;margin:0;box-sizing:border-box;min-height:32px}
+.editor-float .layout-rules .choice-segment button{flex:1;border:0;border-radius:3px;box-shadow:none;font:400 12px var(--font-ui);padding:0 3px;min-height:0;height:26px;line-height:26px;color:var(--text-secondary);background:transparent}
+.editor-float .layout-rules .choice-segment button[aria-pressed=true]{background:#fff;color:#367357;box-shadow:0 1px 3px #355c4520;font-weight:600}
+.editor-float .layout-rules small{font-size:11px;color:var(--muted);line-height:1.6;align-self:end}
+.editor-float .layout-rules .layout-rule-note{grid-column:1/-1;margin:0}
+.editor-float .layout-rules .spacing-summary{font-size:11px;padding:8px 0;border:0;border-top:1px solid #b9d0c280;background:transparent;border-radius:0}
+.editor-float .layout-rules .checkline{font-size:11px;margin:4px 0 10px}
+.editor-float .layout-rules .checkline input{width:14px;height:14px!important;margin:0!important}
+
+.editor-float[data-page=layout] .run-actions button{height:32px;font-size:12px;border-radius:5px}
+.editor-float[data-page=layout] .run-actions .all-layout{background:#ffffff80;border:1px solid #bed2c7;color:#3f6d57}
+.editor-float .layout-inspector .layout-rules>h2{display:block;margin-bottom:8px}
+
+.editor-float .module-library-entry.icon-button{width:24px;height:24px;display:flex;align-items:center;justify-content:center;padding:3px}
+.editor-float .module-library-entry .ui-icon{width:18px;height:18px;stroke-width:2}
+
+.editor-float .layout-rules .spacing-controls{padding-top:12px;border-top:1px solid #b9d0c280}
+.editor-float .layout-rules .spacing-controls .compact-rules{margin-bottom:6px}
+.editor-float .layout-rules .spacing-controls input[readonly]{background:#e7eee980;border-color:#cbd9d0;color:#64776c;cursor:default}
+.editor-float .layout-rules .spacing-controls small{display:block;min-height:18px}
+.editor-float .layout-rules .spacing-controls .spacing-warning{color:#986932}
+
+.editor-float .layout-rules .direction-control{width:100%;height:32px;box-sizing:border-box;display:flex;align-items:center;justify-content:flex-start;gap:8px;margin:0;padding:4px 8px;border:1px solid #bed2c7;border-radius:5px;background:#ffffff90;color:var(--text-secondary);font:400 12px var(--font-ui)}
+.editor-float .direction-control .ui-icon{width:18px;height:18px;flex-shrink:0;color:#39795c}
+.editor-float .direction-control:has(svg path[d^="M12 3"]) .ui-icon{fill:currentColor;stroke-width:1}
+
+.north-compass{position:absolute;right:20px;top:64px;width:60px;height:60px;padding:0;border:0;background:transparent;filter:drop-shadow(0 3px 7px #243d4d18);cursor:pointer;z-index:3}
+.north-compass svg{width:100%;height:100%;overflow:visible}
+.north-controls{display:flex;align-items:center;gap:10px;font-size:12px}
+.north-controls input{width:76px}
+.north-controls label{display:flex;align-items:center;gap:6px}
+.image-tools .north-controls .drawing-done{width:auto;min-width:80px;height:32px;padding:4px 12px;white-space:nowrap}.north-controls{flex-wrap:wrap}.north-controls>strong{white-space:nowrap}
+
+.image-overlay-panel{position:absolute;z-index:8;right:16px;top:130px;width:260px;padding:14px;background:#f4f8fbee;border:1px solid #bfd1df;border-radius:10px;box-shadow:0 8px 24px #243d4d25;backdrop-filter:blur(10px);font:12px var(--font-ui);color:#405b6d;max-height:calc(100% - 150px);overflow:auto}
+.image-overlay-panel header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.image-overlay-panel .icon-button{width:26px;height:26px;padding:4px;border:0;background:transparent}
+.image-overlay-panel .ui-icon{width:18px;height:18px;color:#397fae}
+.image-overlay-panel button{font:12px var(--font-ui);border-radius:5px}
+.image-overlay-panel .overlay-add{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:32px;background:#e7f0f7;border:1px solid #b9cddd;color:#397fae}
+.overlay-list{margin:10px 0;max-height:130px;overflow:auto}
+.overlay-list>div{display:flex;align-items:center;border-radius:4px}.overlay-list>div.selected{background:#dcebf5}
+.overlay-list>div>button:first-child{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;background:none;border:0;padding:7px;color:inherit}
+.overlay-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;border-top:1px solid #c9d8e2;padding-top:10px}
+.overlay-fields label{display:flex;flex-direction:column;gap:5px;margin:0;font-size:12px}
+.overlay-fields input{width:100%;min-width:0;height:30px;box-sizing:border-box;border:1px solid #c6d5df;border-radius:4px;padding:4px 7px;background:#ffffffa0;color:#324c5d;font:12px var(--font-ui)}
+.overlay-fields .overlay-opacity{grid-column:1/-1;display:grid;grid-template-columns:1fr auto}.overlay-opacity input{grid-column:1/-1;padding:0}
+.overlay-fields small{grid-column:1/-1;font-size:11px;color:#718391}.overlay-delete{grid-column:1/-1;justify-self:start;border:0;background:none;color:#a45147;padding:3px 0}
+.image-overlay-panel p[role=alert]{font-size:12px;color:#a45147}
+
+/* Empty regions have no content below the menu: reserve its expansion space. */
+.editor-float .region-context-empty:has(> .region-menu[open]){padding-bottom:64px}

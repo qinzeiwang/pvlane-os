@@ -1,0 +1,10 @@
+import {it,expect} from 'vitest';
+import {parseWorkspace} from './workspace-file';
+import {newRoof} from './roof-project';
+import {defaultModuleCatalog} from './module-library';
+import {autoLayout} from './auto-layout';
+import {layoutSignatureFor} from './layout-state';
+import {schemeReport} from './scheme-report';
+const project=()=>{const r=newRoof();return {version:3,name:'测试',roofs:[r],activeId:r.id,solarHour:9,backgroundColor:'#ffffff',groundColor:'#dddddd'};};
+it('开源版默认仅标准组件，并拒绝不支持的项目',()=>{expect(defaultModuleCatalog()).toHaveLength(1);const p=project();expect(()=>parseWorkspace(JSON.stringify({...p,roofs:[{...p.roofs[0],carport:{double:false,percent:10,clearance:2.5}}]}))).toThrow('不支持车棚');expect(()=>parseWorkspace(JSON.stringify({...p,roofs:[{...p.roofs[0],moduleSpec:{...p.roofs[0].moduleSpec,kind:'lightweight'}}]}))).toThrow('仅支持标准组件');expect(parseWorkspace(JSON.stringify({...p,energySettings:{pr:82.5}}))).not.toHaveProperty('energySettings');});
+it('确实布置为零的屋面仍可出报告，未布置不能冒充零结果',()=>{const r=newRoof();r.roof={width:1,depth:1};const result=autoLayout(r.roof,[],{...r.layoutOptions,module:r.moduleSpec,edge:.5});expect(result.count).toBe(0);r.arrays=result.arrays;r.layoutSignature=layoutSignatureFor(r,.5);expect(schemeReport('零布置',[r],.5,'data:image/png;base64,AAAA')).toContain('合计');});
