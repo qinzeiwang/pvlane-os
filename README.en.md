@@ -49,6 +49,8 @@ Chrome or Edge is required for choosing where to save project and report files.
 
 See the [English User Guide](docs/USER-GUIDE.en.md) for complete instructions and troubleshooting. The application interface is currently in Simplified Chinese.
 
+See the [Changelog](CHANGELOG.en.md) for version history.
+
 ## Development checks
 
 ```sh
@@ -78,4 +80,4 @@ Because the license restricts some commercial activities, PVLANE is source-avail
 
 ## Project status
 
-The current version focuses on standard-module roof layout and installed-capacity reporting. The PVLANE wordmark uses system-font fallbacks; no font file is distributed.
+The current version focuses on standard-module roof layout and installed-capacity reporting. The interface bundles Inter and Noto Sans SC with the application build. Their licenses are included in [docs/font-licenses](docs/font-licenses) and the [Third-party Notices](THIRD-PARTY-NOTICES.md).

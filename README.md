@@ -48,6 +48,8 @@ npm run dev -- --port 5175
 
 完整操作和故障排查见[中文用户指南](docs/USER-GUIDE.md)。
 
+版本变化见[更新日志](CHANGELOG.md)。
+
 ## 开发检查
 
 ```sh
@@ -78,4 +80,4 @@ npm run preview -- --port 4175
 
 ## 项目状态
 
-当前版本聚焦标准组件屋面布置和装机量报告。PVLANE 字标使用系统字体回退，不分发字体文件。
+当前版本聚焦标准组件屋面布置和装机量报告。界面使用随项目构建分发的 Inter 与 Noto Sans SC 字体，许可证见 [docs/font-licenses](docs/font-licenses) 和[第三方软件声明](THIRD-PARTY-NOTICES.md)。

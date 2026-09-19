@@ -26,8 +26,9 @@ import {
 import { RealisticScene, thousandPanels } from "./realistic";
 import { usePdfPatch, type PdfViewport } from './pdf-patch';
 import type { PerformanceTrial } from "./render-options";
-function PitchStroke({length,unit,tone='#317ca7'}:{length:number;unit:number;tone?:string}){
- return <>{[0,1].map(layer=>{const radius=unit*(layer?1.2:2.8),color=layer?tone:'#ffffff';return <group key={layer}><mesh renderOrder={10000+layer}><boxGeometry args={[length,.01,radius*2]}/><meshBasicMaterial color={color} depthTest={false} depthWrite={false} toneMapped={false}/></mesh>{[-1,1].map(end=><mesh key={end} position={[end*length/2,0,0]} rotation={[-Math.PI/2,0,0]} renderOrder={10000+layer}><circleGeometry args={[radius,16]}/><meshBasicMaterial color={color} depthTest={false} depthWrite={false} toneMapped={false}/></mesh>)}</group>;})}</>;
+function PitchStroke({length,unit,tone='#364454'}:{length:number;unit:number;tone?:string}){
+ const radius=unit*.875;
+ return <group><mesh renderOrder={10001}><boxGeometry args={[length,.01,radius*2]}/><meshBasicMaterial color={tone} depthTest={false} depthWrite={false} toneMapped={false}/></mesh>{[-1,1].map(end=><mesh key={end} position={[end*length/2,0,0]} rotation={[-Math.PI/2,0,0]} renderOrder={10001}><circleGeometry args={[radius,16]}/><meshBasicMaterial color={tone} depthTest={false} depthWrite={false} toneMapped={false}/></mesh>)}</group>;
 }
 function DimensionLabel({text,position,unit}:{text:string;position:[number,number,number];unit:number}){
  const texture=useMemo(()=>{const canvas=document.createElement('canvas');canvas.width=240;canvas.height=64;const c=canvas.getContext('2d')!;c.fillStyle='#ffffff';c.beginPath();c.roundRect(1,1,238,62,12);c.fill();c.font='500 30px Segoe UI';c.textAlign='center';c.textBaseline='middle';c.fillStyle='#285a78';c.fillText(text,120,33);return new THREE.CanvasTexture(canvas);},[text]);
@@ -174,7 +175,8 @@ function Scene(props: ViewProps) {
   latest.current = props;
   const { gl, size, set, scene, invalidate, get } = useThree();
   useEffect(()=>{props.onCaptureReady?.(()=>{gl.render(scene,get().camera);return gl.domElement.toDataURL("image/png");});return()=>props.onCaptureReady?.(null);},[gl,scene,get,props.onCaptureReady]);
-  const detailed = props.mode === "3d" && props.visual?.realistic;
+  const quality=props.visual?.quality??(props.visual?.realistic===false?'simple':'standard');
+  const detailed = props.mode === "3d" && quality!=='simple';
   const stress = props.mode === "3d" && !!props.visual?.stress;
   const showGuides =
     props.mode === "top" || (!!props.visual?.guides && !stress);
@@ -248,6 +250,14 @@ function Scene(props: ViewProps) {
       view.current.x=props.focus?.x??0;view.current.z=props.focus?.z??0;
       view.current.span = Math.max(roof.depth * 1.4, roof.width * 1.4 / aspect, 10);
       view.current.distance = Math.max(roof.width, roof.depth) * 1.7;
+      const base=props.baseImage;
+      if(props.mode==='top'&&!base?.blank&&base?.metersPerPixel){
+        const k=base.metersPerPixel,f=base.frame??{x:0,y:0,width:base.width,height:base.height};
+        const left=Math.min((-f.x-f.width/2)*k,(props.focus?.x??0)-roof.width/2),right=Math.max((base.width-f.x-f.width/2)*k,(props.focus?.x??0)+roof.width/2);
+        const top=Math.min((-f.y-f.height/2)*k,(props.focus?.z??0)-roof.depth/2),bottom=Math.max((base.height-f.y-f.height/2)*k,(props.focus?.z??0)+roof.depth/2);
+        view.current.x=(left+right)/2;view.current.z=(top+bottom)/2;
+        view.current.span=Math.max((bottom-top)*1.06,(right-left)*1.06/aspect,10);
+      }
     }
     fit();
   }, [props.reset, props.mode, stress]);
@@ -260,6 +270,11 @@ function Scene(props: ViewProps) {
     view.current.z=(r.y+r.height/2-b.frame.y-b.frame.height/2)*k;
     fit();
   },[props.restoreDrawingView,props.mode]);
+  useLayoutEffect(()=>{
+    if(!props.viewCommand?.id)return;
+    zoomView(view.current,props.viewCommand.factor);
+    fit();
+  },[props.viewCommand?.id]);
   const benchmark = useRef<{
     start: number;
     last: number;
@@ -335,7 +350,7 @@ function Scene(props: ViewProps) {
     gl.getDrawingBufferSize(dim);
     const report = {
       recordedAt: new Date().toISOString(),
-      quality: detailed ? "真实材质 / 阴影 / 支架" : "简洁显示",
+      quality: ({simple:'简单',standard:'标准',fine:'精细'} as const)[quality],
       panels: 1000,
       canvas: `${dim.x} × ${dim.y}`,
       renderer: ext
@@ -371,6 +386,7 @@ function Scene(props: ViewProps) {
     };
     return bindPointer(gl.domElement, {
       mode: () => latest.current.mode,
+      panMode:()=>latest.current.navigationMode==='pan',
       point: (x, y) => {
         cast(x, y);
         const p = ray.ray.intersectPlane(plane, target);
@@ -426,7 +442,7 @@ function Scene(props: ViewProps) {
   return (
     <>
       {detailed ? (
-        <RealisticScene northAngle={props.baseImage?.northAngle??0} sites={sites} focus={props.focus} backgroundColor={props.visual?.backgroundColor} groundColor={props.visual?.groundColor} arrays={renderArrays} stress={stress} roof={roof} obstacles={obstacles} solarHour={props.solarHour} wallHeight={props.wallHeight} />
+        <RealisticScene quality={quality} northAngle={props.baseImage?.northAngle??0} sites={sites} focus={props.focus} backgroundColor={props.visual?.backgroundColor} groundColor={props.visual?.groundColor} arrays={renderArrays} stress={stress} roof={roof} obstacles={obstacles} solarHour={props.solarHour} wallHeight={props.wallHeight} />
       ) : (
         <>
           <color attach="background" args={[props.visual?.backgroundColor ?? "#edf2f5"]} />
@@ -436,7 +452,7 @@ function Scene(props: ViewProps) {
         </>
       )}
       {!stress&&props.mode==='top'&&<>{sites.filter(r=>r.id===props.selectedSiteId).map(r=><group key={'selected'+r.id} position={[r.x,0,r.z]} rotation={[0,r.yaw,0]}><Lines points={outline(r.width,r.depth,.12)} color="#008ee6"/><Lines points={outline(r.width+.08,r.depth+.08,.12)} color="#008ee6"/></group>)}{obstacles.filter(o=>o.id===props.selectedObjectId).map(o=><group key={'selected'+o.id} position={[o.x,0,o.z]} rotation={[0,o.yaw,0]}><mesh position={[0,Math.max(.35,o.height)+.05,0]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[o.width,o.depth]}/><meshBasicMaterial color="#00a5ff" transparent opacity={.35} depthTest={false}/></mesh><Lines points={outline(o.width,o.depth,Math.max(.35,o.height)+.07)} color="#007dcc"/>{props.editingObject&&<><DimensionLabel text={o.width.toFixed(2)+' m'} position={[0,Math.max(.35,o.height)+.15,-o.depth/2-view.current.span/size.height*20]} unit={view.current.span/size.height}/><DimensionLabel text={o.depth.toFixed(2)+' m'} position={[o.width/2+view.current.span/size.height*52,Math.max(.35,o.height)+.15,0]} unit={view.current.span/size.height}/></>}{props.editingObject&&corners({...o,x:0,z:0,yaw:0}).map((p,i)=><mesh key={i} position={[p.x,Math.max(.35,o.height)+.1,p.z]} rotation={[-Math.PI/2,0,0]}><circleGeometry args={[view.current.span/size.height*6,16]}/><meshBasicMaterial color="#ffffff" depthTest={false}/></mesh>)}</group>)}</>}
-      {!stress && props.mode === "top" && props.baseImage?.frame && props.baseImage.metersPerPixel && <Suspense fallback={null}><BaseImagePlane base={props.baseImage}/>{props.baseImage.pdfSource&&<PdfPatchPlane base={props.baseImage} view={pdfView} pixels={size.width}/>}</Suspense>}
+      {!stress && props.mode === "top" && !props.baseImage?.blank && props.baseImage?.frame && props.baseImage.metersPerPixel && <Suspense fallback={null}><BaseImagePlane base={props.baseImage}/>{props.baseImage.pdfSource&&<PdfPatchPlane base={props.baseImage} view={pdfView} pixels={size.width}/>}</Suspense>}
       {!stress && props.showShadows && props.shadowZones?.filter(zone=>props.mode==='top'||!zone.topOnly).map(zone => <ShadowPolygon key={zone.id} points={zone.points} elevation={props.mode==='top'?0:zone.elevation??0} overlay={props.mode==='top'} />)}
       {showGuides && (
         <>

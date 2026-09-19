@@ -1,3 +1,5 @@
+import {BrandLogo} from './brand-logo';
+import {SystemSettings} from './system-settings';
 import {ImageOverlayPanel} from './image-overlay-panel';
 import {resizeOverlay,type ImageOverlay} from './image-overlays';
 import {geographicYaw} from './roof-project';
@@ -34,11 +36,12 @@ import "./design-system.css";
 import "./panel.css";
 import "./region-panel.css";
 import "./brand.css";
+import "./theme/install";
 import {resizeObject} from "./resize-object";
 import {ModuleLibraryPanel,ModulePicker} from './module-library-panel';
 import {defaultModuleCatalog,sameModule,type ModuleCatalogItem} from './module-library';
 import { ImageEditor } from './image-editor';
-import type { BaseImage } from './base-image';
+import {blankDrawing,blankDrawingInitialView,type BaseImage} from './base-image';
 import { parseWorkspace, downloadWorkspace, type WorkspaceFile } from './workspace-file';
 import { useRoofProject, newRoof, roofFromPrevious, type RoofDesign, roofRect, toLocal, toWorld, worldArray, worldObstacle, projectBounds, totals } from './roof-project';
 import { loadDrawing } from './drawing-import';
@@ -47,9 +50,9 @@ import { shadowZones, hitsShadow } from "./shadow-zones";
 import { pitchedShadowZones } from "./pitched-shadow-zones";
 import { recommendedGap } from "./solar";
 import { autoLayout, type LayoutOptions } from "./auto-layout";
-import { AutoPanel, AdvancedLayoutPanel } from "./auto-panel";
+import { AutoPanel } from "./auto-panel";
 import { SitePanel } from "./site-panel";
-import type { PerformanceReport } from "./render-options";
+import type { PerformanceReport, RenderQuality } from "./render-options";
 const Three = lazy(() => import("./three"));
 function App() {
   const engine = "three";
@@ -66,8 +69,10 @@ function App() {
   const [globalEdge,setGlobalEdge]=useState(.5);
   const [deletedRoof,setDeletedRoof]=useState<{roof:RoofDesign;index:number;placeholder?:RoofDesign}>();
   const [importing,setImporting]=useState(false);
-  const [advancedOpen,setAdvancedOpen]=useState(false);
   const [displayOpen,setDisplayOpen]=useState(false);
+  const [moduleLibraryOpen,setModuleLibraryOpen]=useState(false);
+  const [navigationMode,setNavigationMode]=useState<'select'|'pan'>('select');
+  const [viewCommand,setViewCommand]=useState<{id:number;factor:number}>({id:0,factor:1});
   useEffect(()=>{
     const dismissOutside=(event:Event)=>{
       const target=event.target;if(!(target instanceof Element))return;
@@ -93,7 +98,7 @@ function App() {
   const [reportError,setReportError]=useState('');
   const [globalOpen,setGlobalOpen]=useState(false);
   const [drawingTool,setDrawingTool]=useState<'roof'|'obstacle'|'keepout'|'scale'>('roof');
-  const [drawingIntent,setDrawingIntent]=useState<'create'|'reshape'|'scale'|'obstacle'|'keepout'>('create');
+  const [drawingIntent,setDrawingIntent]=useState<'create'|'reshape'|'reshape-object'|'scale'|'rescale'|'north'|'obstacle'|'keepout'>('create');
   const [imageOpen,setImageOpen] = useState(false);
   const [fileMessage,setFileMessage] = useState('');
   const fileInput=useRef<HTMLInputElement>(null),imageInput=useRef<HTMLInputElement>(null);
@@ -112,7 +117,7 @@ function App() {
     [mode, setMode] = useState<Mode>("top"),
     [reset, setReset] = useState(0),
     [error, setError] = useState("");
-  const [realistic, setRealistic] = useState(true),
+  const [quality, setQuality] = useState<RenderQuality>('standard'),
     [guides, setGuides] = useState(false),
     [stress, setStress] = useState(false),
     [run, setRun] = useState(0),
@@ -152,13 +157,14 @@ function App() {
       setLayoutMessage(`已排布 ${result.count} 块 / ${(result.count * moduleSpec.power / 1000).toFixed(2)} kWp · 前后净距 ${result.rowGap.toFixed(2)} m${result.shortened ? " · 允许部分遮挡" : ""}${result.capped ? " · 已达完整连排数量上限" : ""}`);
     } catch(e) { setLayoutMessage(`请检查参数：${e instanceof Error ? e.message : "排布失败"}。组件长宽 0.2–5m，功率 1–2000Wp，连排 1–3、列数 1–100，间距不得为负。`); }
   };
-  const zones = active.pitch?[]:shadowZones(roof, obstacles, wallHeight, geographicYaw(active));
+  const zones = active.pitch?pitchedShadowZones(roof,obstacles,active.pitch,geographicYaw(active)):shadowZones(roof, obstacles, wallHeight, geographicYaw(active));
   const shadowIssues = arrays.flatMap(a => zones.filter(zone => hitsShadow(footprint(a), zone)).map(zone => ({ kind: "obstacle" as const, ids: [a.id, zone.id], text: `${a.name} 进入${zone.name}` })));
   const selected = arrays.find((a) => a.id === selectedId),
     issues = [...detect(arrays, obstacles, roof), ...shadowIssues,...overlappingRoofs.map(r=>({kind:"boundary" as const,ids:arrays.map(a=>a.id),text:`与 ${r.name} 屋面重叠`}))],
     count = arrays.reduce((sum, a) => sum + a.rows * a.columns, 0);
   const selectedObstacle = obstacles.find(o => o.id === selectedObstacleId);
   useEffect(()=>{inspector.current?.scrollTo({top:0});},[active.id,selectedObstacleId,selectedId,panel]);
+  useEffect(()=>{if(panel==='spacing'&&selected?.connectedRows)setPanel('angle');},[panel,selected?.connectedRows]);
   const g = selected ? geometry(selected) : null;
   const update = (patch: Partial<Params>) => {
     if (!selected || mode !== "top") return;
@@ -237,12 +243,15 @@ function App() {
     setDeletedRoof(undefined);setFileMessage('已恢复删除的屋面');
   };
   const chooseRoof=(id:string)=>{setEditingObject(false);setHasSelection(true);setActiveId(id);setSelected(null);setSelectedObstacle(null);setError('');};
+  const openObjectEditor=(rid:string,oid:string)=>{
+    const target=roofs.find(r=>r.id===rid),object=target?.obstacles.find(o=>o.id===oid);if(!target||!object||!baseImage)return;
+    chooseRoof(rid);setPanel('roof');setCollapsed(false);setCanvasMenu(null);setSelectedObstacle(oid);setObstacleHeight(object.height);setDrawingIntent('reshape-object');setDrawingForm(undefined);setDrawingTool(object.kind==='keepout'?'keepout':'obstacle');setImageOpen(true);
+  };
   const editCanvasObject=(id:string)=>{
     const object=id.startsWith('@o/')||id.startsWith('@h/'),raw=id.startsWith('@')?id.slice(3):id;
     const rid=raw.split('/')[0],target=roofs.find(r=>r.id===rid);if(!target)return;
-    chooseRoof(rid);setPanel('roof');setCollapsed(false);setCanvasMenu(null);
-    if(object){objectSnapshot.current={id:rid,objects:structuredClone(target.obstacles)};setSelectedObstacle(raw.split('/')[1]);setMode('top');setEditingObject(true);}
-    else if(baseImage){setDrawingIntent('reshape');setDrawingForm(undefined);setDrawingTool('roof');setImageOpen(true);}
+    if(object){openObjectEditor(rid,raw.split('/')[1]);return;}
+    chooseRoof(rid);setPanel('roof');setCollapsed(false);setCanvasMenu(null);if(baseImage){setDrawingIntent('reshape');setDrawingForm(undefined);setDrawingTool('roof');setImageOpen(true);}
   };
   const createBlankProject=()=>{
     setHistoryEpoch(n=>n+1);const r=newRoof();setHasSelection(false);setRoofs([r]);setActiveId(r.id);setBaseImage(undefined);setImageOverlays([]);setOverlayOpen(false);setSelectedOverlay(null);drawingView.current=undefined;setRestoredDrawingView(undefined);setProjectName('未命名项目');setModuleCatalog(defaultModuleCatalog());setDeletedRoof(undefined);setGlobalEdge(.5);
@@ -277,21 +286,21 @@ function App() {
   const worldZones=(hasSelection?roofs:[]).flatMap(r=>(r.pitch?pitchedShadowZones(r.roof,r.obstacles,r.pitch,geographicYaw(r)).map(z=>({...z,topOnly:true})):shadowZones(r.roof,r.obstacles,r.wallHeight,geographicYaw(r))).map(z=>({...z,id:`${r.id}/${z.id}`,elevation:(r.flatHeight??3.5)-3.5,points:z.points.map(p=>toWorld(p,r))})));
   const worldIssues=roofs.flatMap(r=>{const localZones=r.pitch?pitchedShadowZones(r.roof,r.obstacles,r.pitch,geographicYaw(r)):shadowZones(r.roof,r.obstacles,r.wallHeight,geographicYaw(r));const localIssues=[...detect(r.arrays,r.obstacles,r.roof),...r.arrays.flatMap(a=>localZones.filter(z=>hitsShadow(footprint(a),z)).map(z=>({kind:'obstacle' as const,ids:[a.id],text:z.name})))];return localIssues.map(i=>({...i,ids:i.ids.map(id=>`${r.id}/${id}`)}));});
   const View = Three;
-  if(entry!=='workspace')return <ProjectStart creating={entry==='new'} busy={importing} message={fileMessage} onNew={()=>{setFileMessage('');setEntry('new');}} onBack={()=>setEntry('welcome')} onOpen={openFile} onCreate={(mode,file)=>{setFileMessage('');if(mode==='drawing'){void loadImage(file);}else{setHistoryEpoch(n=>n+1);setEntry('workspace');}}}/>;
+  if(entry!=='workspace')return <ProjectStart pendingDrawing={baseImage&&!baseImage.metersPerPixel?baseImage.name:undefined} name={projectName} address={projectAddress} onName={setProjectName} onAddress={setProjectAddress} creating={entry==='new'} busy={importing} message={fileMessage} onNew={()=>{setFileMessage('');setEntry('new');}} onBack={()=>setEntry('welcome')} onOpen={openFile} onCreate={(mode,file)=>{setFileMessage('');if(mode==='drawing'){if(!file&&baseImage&&!baseImage.metersPerPixel){setEntry('workspace');setImageOpen(true);}else void loadImage(file);}else{const blank=blankDrawing();setBaseImage(blank);drawingView.current=blankDrawingInitialView(blank);setImageOpen(false);setHistoryEpoch(n=>n+1);setEntry('workspace');}}}/>;
   return (
     <main>
       {reportPreview&&<div className="project-dialog-backdrop"><section className="report-preview" role="dialog" aria-modal="true" aria-label="方案报告预览"><div className="advanced-heading"><h2>方案报告预览</h2><div><button disabled={reportSaving} onClick={async()=>{setReportSaving(true);setReportError('');try{await downloadScheme(reportPreview.html,reportPreview.name);}catch(e){setReportError((e as Error).message);}finally{setReportSaving(false);}}}>{reportSaving?'保存中…':'下载到…'}</button><button className="icon-button" aria-label="关闭报告预览" onClick={()=>setReportPreview(null)}><Icon name="close"/></button></div></div>{reportError&&<p role="alert">{reportError}</p>}<iframe title="方案报告内容" srcDoc={reportPreview.html} sandbox="allow-scripts allow-modals"/></section></div>}
       {reportOpen&&<div className="project-dialog-backdrop"><section className="project-dialog" role="dialog" aria-modal="true" aria-label="生成方案报告"><div className="advanced-heading"><h2>生成方案报告</h2><button className="icon-button" aria-label="关闭报告" onClick={()=>setReportOpen(false)}><Icon name="close"/></button></div>{reportReadiness(roofs,globalEdge).length?<p>请先布置或更新：{reportReadiness(roofs,globalEdge).join('、')}</p>:<p>采用当前三维视角，包含各屋面面积、光伏数量、装机量、占用面积及合计。先预览报告，再选择保存位置；也可打印为 PDF。</p>}{reportError&&<p role="alert">{reportError}</p>}<div><button onClick={()=>setReportOpen(false)}>返回调整视角</button><button disabled={!!reportReadiness(roofs,globalEdge).length||mode!=='3d'||!hasSelection} onClick={()=>{try{if(!captureScene.current)throw new Error('三维场景尚未准备好');setReportPreview({html:schemeReport(projectName,roofs,globalEdge,captureScene.current(),projectAddress),name:projectName});setReportError('');setReportOpen(false);}catch(e){setReportError((e as Error).message);}}}>预览报告</button></div></section></div>}
 
       {creating&&<NewRegion previous={active.pitch?.kind??'flat'} hasDrawing={!!baseImage} onCreate={createRegion} onClose={()=>setCreating(false)}/>}
-      {globalOpen&&<div className="project-dialog-backdrop"><section className="project-dialog global-settings-dialog" role="dialog" aria-modal="true" aria-label="项目与全局参数"><div className="advanced-heading"><h2>项目与全局参数</h2><button className="icon-button" aria-label="关闭项目设置" onClick={()=>setGlobalOpen(false)}><Icon name="close"/></button></div><div className="project-identity"><label>项目名称<input aria-label="项目名称" value={projectName} onChange={e=>setProjectName(e.target.value)} onBlur={()=>setProjectName(v=>v.trim()||'未命名项目')}/></label><label>项目地址<input aria-label="项目地址" value={projectAddress} placeholder="选填" onChange={e=>setProjectAddress(e.target.value)}/></label></div><ModuleLibraryPanel items={moduleCatalog} usedIds={new Set(roofs.map(r=>r.moduleId).filter((id):id is string=>!!id))} onChange={updateModuleCatalog}/>{hasSelection&&<button onClick={()=>{setGlobalOpen(false);setAdvancedOpen(true);}}>当前区域布置高级参数 · {active.name}</button>}<label>屋面 / 屋脊投影边距 m<input aria-label="全局屋面 / 屋脊投影边距 m" type="number" min="0" max="20" step="0.1" value={globalEdge} onChange={e=>{const n=Number(e.target.value);if(e.target.value!==''&&Number.isFinite(n)&&n>=0&&n<=20)setGlobalEdge(n);}}/></label>{baseImage&&<div className="advanced-map"><label>图纸北向角度 °<input aria-label="图纸北向角度" type="number" min="0" max="359.9" step="0.1" value={baseImage.northAngle??0} onChange={e=>{const n=Number(e.target.value);if(e.target.value&&Number.isFinite(n)&&n>=0&&n<360){setBaseImage({...baseImage,northAngle:n});setRoofs(rs=>rs.map(r=>({...r,northAngle:n})));}}}/></label><small>上方为 0°，顺时针旋转</small><button disabled={importing} title="更换底图会开始新方案，请先保存当前项目" onClick={()=>{setGlobalOpen(false);imageInput.current?.click();}}>更换图片 / PDF</button></div>}<div><button onClick={()=>setGlobalOpen(false)}>完成</button></div></section></div>}
+      {globalOpen&&<SystemSettings name={projectName} address={projectAddress} base={baseImage} north={baseImage?.northAngle??active.northAngle??0} edge={globalEdge} busy={importing||running} region={hasSelection?active.name:undefined} onName={setProjectName} onAddress={setProjectAddress} onNorth={n=>{if(baseImage)setBaseImage({...baseImage,northAngle:n});setRoofs(rs=>rs.map(r=>({...r,northAngle:n})));}} onEdge={setGlobalEdge} onScale={()=>{setGlobalOpen(false);setDrawingIntent('rescale');setDrawingTool('scale');setDrawingForm(undefined);setImageOpen(true);}} onDirection={()=>{setGlobalOpen(false);setDrawingIntent('north');setDrawingTool('scale');setDrawingForm(undefined);setImageOpen(true);}} onReplace={()=>{setGlobalOpen(false);imageInput.current?.click();}} maxColumns={hasSelection?layoutOptions.maxColumns:undefined} onMaxColumns={n=>setLayoutOptions({...layoutOptions,maxColumns:n})} onClose={()=>setGlobalOpen(false)}/>}
+      {moduleLibraryOpen&&<div className="project-dialog-backdrop" onKeyDown={e=>{if(e.key==='Escape')setModuleLibraryOpen(false)}}><section className="project-dialog settings-dialog" role="dialog" aria-modal="true" aria-label="组件库"><header className="settings-heading"><h2>组件库</h2><button className="icon-button" aria-label="关闭组件库" onClick={()=>setModuleLibraryOpen(false)}><Icon name="close"/></button></header><div className="settings-body"><ModuleLibraryPanel items={moduleCatalog} usedIds={new Set(roofs.map(r=>r.moduleId).filter((id):id is string=>!!id))} onChange={updateModuleCatalog}/></div><footer className="settings-footer"><button onClick={()=>setModuleLibraryOpen(false)}>完成</button></footer></section></div>}
       {newProjectOpen&&<div className="project-dialog-backdrop"><section className="project-dialog" role="dialog" aria-modal="true" aria-labelledby="new-project-title"><h2 id="new-project-title">新建项目</h2><p>新建将清空当前工作区。是否先保存当前项目？</p><div><button disabled={saving} onClick={()=>setNewProjectOpen(false)}>取消</button><button disabled={saving} onClick={createBlankProject}>不保存，新建</button><button disabled={saving} onClick={async()=>{if(await save())createBlankProject();}}>{saving?'保存中…':'保存后新建'}</button></div>{fileMessage.startsWith('保存失败')&&<p role="alert">{fileMessage}</p>}</section></div>}
-      {advancedOpen&&<div className="project-dialog-backdrop" onKeyDown={e=>{if(e.key==='Escape')setAdvancedOpen(false);}}><section className="project-dialog" role="dialog" aria-modal="true" aria-label="高级设置"><div className="advanced-heading"><h2>高级设置</h2><button className="icon-button" aria-label="关闭高级设置" onClick={()=>setAdvancedOpen(false)}><Icon name="close"/></button></div><p>{active.name} · 布置参数</p><AdvancedLayoutPanel options={{...layoutOptions,pitch:active.pitch,module:moduleSpec}} onChange={v=>{const {pitch,module,...rules}=v;setLayoutOptions(rules);}}/><div><button onClick={()=>setAdvancedOpen(false)}>完成</button></div></section></div>}
       <header className="topbar">
-        <div className="brand"><span className="pvlane-wordmark">PVLANE</span></div>
+        <div className="brand"><BrandLogo/></div>
         <button className="project-title project-name-button" title="编辑项目信息" onClick={()=>setGlobalOpen(true)}>{projectName}</button>
 
-        <div className="top-actions"><div className="history-actions"><button className="icon-button" title="撤销 · Ctrl+Z" aria-label="撤销" disabled={!history.canUndo||importing||saving||running||imageOpen} onClick={history.undo}><Icon name="reset"/></button><button className="icon-button" title="重做 · Ctrl+Shift+Z" aria-label="重做" disabled={!history.canRedo||importing||saving||running||imageOpen} onClick={history.redo}><Icon name="redo"/></button></div><button aria-label="保存项目" title="选择位置并保存 JSON" className="icon-button save-action" disabled={saving||importing} onClick={()=>void save()}><Icon name="save"/></button><button className="icon-button" aria-label="全局参数" title="全局参数" onClick={()=>setGlobalOpen(true)}><Icon name="settings"/></button><details className="project-menu"><summary className="icon-button" title="项目菜单" aria-label="项目菜单"><Icon name="menu"/></summary><div><button disabled={stress||running||importing||saving} onClick={e=>{e.currentTarget.closest('details')?.removeAttribute('open');setNewProjectOpen(true);}}><Icon name="plus"/>新建项目</button><button disabled={stress||running||importing||saving} onClick={e=>{e.currentTarget.closest('details')?.removeAttribute('open');fileInput.current?.click();}}><Icon name="folder"/>打开项目</button><button onClick={e=>{e.currentTarget.closest('details')?.removeAttribute('open');setGlobalOpen(true);}}><Icon name="file"/>项目信息</button></div></details><input ref={fileInput} type="file" accept=".json" hidden onChange={e=>{void openFile(e.target.files?.[0]);e.target.value='';}}/><input ref={imageInput} type="file" accept="application/pdf,.pdf,image/png,image/jpeg,image/webp" hidden onChange={e=>{void loadImage(e.target.files?.[0]);e.target.value='';}}/></div>
+        <div className="top-actions"><div className="history-actions"><button className="icon-button" title="撤销 · Ctrl+Z" aria-label="撤销" disabled={!history.canUndo||importing||saving||running||imageOpen} onClick={history.undo}><Icon name="reset"/></button><button className="icon-button" title="重做 · Ctrl+Shift+Z" aria-label="重做" disabled={!history.canRedo||importing||saving||running||imageOpen} onClick={history.redo}><Icon name="redo"/></button></div><button aria-label="保存项目" title="选择位置并保存 JSON" className="icon-button save-action" disabled={saving||importing} onClick={()=>void save()}><Icon name="save"/></button><button className="icon-button" aria-label="组件库" title="组件库" onClick={()=>setModuleLibraryOpen(true)}><Icon name="module"/></button><button className="icon-button" aria-label="系统设置" title="系统设置" onClick={()=>setGlobalOpen(true)}><Icon name="settings"/></button><details className="project-menu"><summary className="icon-button" title="项目菜单" aria-label="项目菜单"><Icon name="menu"/></summary><div><button disabled={stress||running||importing||saving} onClick={e=>{e.currentTarget.closest('details')?.removeAttribute('open');setNewProjectOpen(true);}}><Icon name="plus"/>新建项目</button><button disabled={stress||running||importing||saving} onClick={e=>{e.currentTarget.closest('details')?.removeAttribute('open');fileInput.current?.click();}}><Icon name="folder"/>打开项目</button><button onClick={e=>{e.currentTarget.closest('details')?.removeAttribute('open');setGlobalOpen(true);}}><Icon name="file"/>项目信息</button></div></details><input ref={fileInput} type="file" accept=".json" hidden onChange={e=>{void openFile(e.target.files?.[0]);e.target.value='';}}/><input ref={imageInput} type="file" accept="application/pdf,.pdf,image/png,image/jpeg,image/webp" hidden onChange={e=>{void loadImage(e.target.files?.[0]);e.target.value='';}}/></div>
       </header>
       <section className="workspace">
         <aside className={`editor-float ${collapsed ? 'is-collapsed' : ''}`} data-page={panel==='report'?'report':panel==='roof'||panel==='project'?'roof':'layout'} aria-label="操作面板" onKeyDown={e => { if(e.key === 'Escape') setCollapsed(true); }}>
@@ -306,7 +315,7 @@ function App() {
           <section hidden={panel !== 'project'} />
 
           <div className="layout-inspector" hidden={panel !== 'layout'||!hasSelection}>
-          <ModulePicker items={moduleCatalog} value={active.moduleId} onSelect={item=>setRoofs(rs=>rs.map(r=>r.id===active.id?{...r,moduleId:item.id,moduleSpec:{...item.spec}}:r))} onManage={()=>setGlobalOpen(true)}/>
+          <ModulePicker items={moduleCatalog} value={active.moduleId} onSelect={item=>setRoofs(rs=>rs.map(r=>r.id===active.id?{...r,moduleId:item.id,moduleSpec:{...item.spec}}:r))}/>
 
 
 
@@ -322,7 +331,7 @@ function App() {
 
           </section>
           {panel==='roof'&&hasSelection&&!baseImage&&<SitePanel section="roof" roof={roof} obstacles={obstacles} onRoof={setRoof} onObstacles={setObstacles} disabled={running||stress}/>}
-          {panel==='roof'&&hasSelection&&<RegionPanel region={active} selected={selectedObstacle} editing={editingObject} disabled={running||stress} onChange={patch=>setRoofs(rs=>rs.map(r=>r.id===active.id?{...r,...patch}:r))} onSelect={id=>{setSelected(null);setSelectedObstacle(id);setEditingObject(false);}} onEdit={id=>{objectSnapshot.current={id:active.id,objects:structuredClone(obstacles)};setSelected(null);setSelectedObstacle(id);setMode('top');setEditingObject(true);}} onCancel={()=>{const snapshot=objectSnapshot.current;if(snapshot&&snapshot.id===active.id)setObstacles(snapshot.objects);setEditingObject(false);setSelectedObstacle(null);}} onFinish={()=>setEditingObject(false)} onDelete={()=>{setObstacles(obstacles.filter(o=>o.id!==selectedObstacleId));setSelectedObstacle(null);setEditingObject(false);}} onAdd={kind=>{if(baseImage?.frame){setDrawingIntent(kind);setDrawingTool(kind);setDrawingForm(undefined);setImageOpen(true);}else{objectSnapshot.current={id:active.id,objects:structuredClone(obstacles)};const id=crypto.randomUUID();setObstacles([...obstacles,{id,kind,name:(kind==='keepout'?'禁布区':'障碍物')+' '+(obstacles.length+1),x:0,z:0,width:2,depth:2,height:kind==='keepout'?0:obstacleHeight,yaw:0}]);setSelected(null);setSelectedObstacle(id);setEditingObject(true);}}}/>}
+          {panel==='roof'&&hasSelection&&<RegionPanel region={active} selected={selectedObstacle} disabled={running||stress} onChange={patch=>setRoofs(rs=>rs.map(r=>r.id===active.id?{...r,...patch}:r))} onSelect={id=>{setSelected(null);setSelectedObstacle(id);setEditingObject(false);}} onEdit={id=>openObjectEditor(active.id,id)} onDelete={id=>{setObstacles(obstacles.filter(o=>o.id!==id));if(selectedObstacleId===id)setSelectedObstacle(null);setEditingObject(false);}} onAdd={kind=>{if(baseImage?.frame){setDrawingIntent(kind);setDrawingTool(kind);setDrawingForm(undefined);setImageOpen(true);}else{objectSnapshot.current={id:active.id,objects:structuredClone(obstacles)};const id=crypto.randomUUID();setObstacles([...obstacles,{id,kind,name:(kind==='keepout'?'禁布区':'障碍物')+' '+(obstacles.length+1),x:0,z:0,width:2,depth:2,height:kind==='keepout'?0:obstacleHeight,yaw:0}]);setSelected(null);setSelectedObstacle(id);setEditingObject(true);}}}/>}
           <section className="report-workflow" hidden={panel!=="report"}>
             <div className="report-intro"><Icon name="file"/><div><strong>装机量报告</strong><span>各屋面布置结果与项目合计</span></div></div>
             <dl className="report-facts"><div><dt>区域</dt><dd>{hasSelection?roofs.length:0} 个</dd></div><div><dt>组件</dt><dd>{total.count} 块</dd></div><div><dt>装机量</dt><dd>{total.capacity.toFixed(2)} kWp</dd></div></dl>
@@ -468,10 +477,10 @@ function App() {
           >
             3D
           </button>
-        </nav><button className="icon-button" title="回到全景" aria-label="回到全景" disabled={running} onClick={() => setReset(n => n + 1)}><Icon name="frame" /></button><button data-display-trigger className={`icon-button ${displayOpen?'active':''}`} title="显示设置" aria-label="显示设置" aria-expanded={displayOpen} onClick={()=>{setDisplayOpen(v=>!v);setOverlayOpen(false);}}><Icon name="layers"/></button><button className={"icon-button"+(overlayOpen?" active":"")} aria-label="叠加图片" title="叠加图片" onClick={()=>{setOverlayOpen(v=>!v);setDisplayOpen(false);setMode("top");setStress(false);setSelectedOverlay(id=>id??imageOverlays[0]?.id??null);}}><Icon name="image"/></button></div>
+        </nav><button className={`icon-button ${navigationMode==='pan'?'active':''}`} data-tooltip="平移画布" aria-label="平移画布" aria-pressed={navigationMode==='pan'} disabled={running} onClick={()=>setNavigationMode(v=>v==='pan'?'select':'pan')}><Icon name="pan"/></button><button className="icon-button" data-tooltip="放大" aria-label="放大" disabled={running} onClick={()=>setViewCommand(v=>({id:v.id+1,factor:.8}))}><Icon name="zoom-in"/></button><button className="icon-button" data-tooltip="缩小" aria-label="缩小" disabled={running} onClick={()=>setViewCommand(v=>({id:v.id+1,factor:1.25}))}><Icon name="zoom-out"/></button><button className="icon-button" data-tooltip="适应窗口" aria-label="适应窗口" disabled={running} onClick={() => setReset(n => n + 1)}><Icon name="frame" /></button><button data-display-trigger className={`icon-button ${displayOpen?'active':''}`} title="显示设置" aria-label="显示设置" aria-expanded={displayOpen} onClick={()=>{setDisplayOpen(v=>!v);setOverlayOpen(false);}}><Icon name="layers"/></button><button className={"icon-button"+(overlayOpen?" active":"")} aria-label="叠加图片" title="叠加图片" onClick={()=>{setOverlayOpen(v=>!v);setDisplayOpen(false);setMode("top");setStress(false);setSelectedOverlay(id=>id??imageOverlays[0]?.id??null);}}><Icon name="image"/></button></div>
           {overlayOpen&&<ImageOverlayPanel items={imageOverlays} selected={selectedOverlay} center={hasSelection?{x:active.x,z:active.z}:{x:0,z:0}} initialWidth={hasSelection?active.roof.width:baseImage?.metersPerPixel?baseImage.width*baseImage.metersPerPixel*.35:30} onChange={setImageOverlays} onSelect={setSelectedOverlay} onClose={()=>setOverlayOpen(false)}/>}
-          {displayOpen&&<DisplayPopover solarHour={solarHour} showShadows={showShadows} onSolarHour={setSolarHour} onShowShadows={setShowShadows} backgroundColor={backgroundColor} groundColor={groundColor} realistic={realistic} guides={guides} stress={stress} running={running} progress={progress} report={report} count={total.count} onBackground={setBackgroundColor} onGround={setGroundColor} onRealistic={value=>{setRealistic(value);setRun(0);setProgress('');setReport(null);}} onGuides={setGuides} onStartTest={()=>{setMode('3d');setStress(true);setGuides(false);setReport(null);setProgress('第 1/3 轮预热 · 5 秒');setRun(n=>n+1);}} onStopTest={()=>{setRun(0);setProgress('已停止');}} onResetTest={()=>{setStress(false);setRun(0);setProgress('');setReset(n=>n+1);}} onClose={()=>setDisplayOpen(false)}/>}
-          {mode === "top" && <Compass angle={baseImage?.northAngle??0} onClick={()=>setGlobalOpen(true)}/>}
+          {displayOpen&&<DisplayPopover solarHour={solarHour} showShadows={showShadows} onSolarHour={setSolarHour} onShowShadows={setShowShadows} backgroundColor={backgroundColor} groundColor={groundColor} quality={quality} guides={guides} stress={stress} running={running} progress={progress} report={report} count={total.count} onBackground={setBackgroundColor} onGround={setGroundColor} onQuality={value=>{setQuality(value);setRun(0);setProgress('');setReport(null);}} onGuides={setGuides} onStartTest={()=>{setMode('3d');setStress(true);setGuides(false);setReport(null);setProgress('第 1/3 轮预热 · 5 秒');setRun(n=>n+1);}} onStopTest={()=>{setRun(0);setProgress('已停止');}} onResetTest={()=>{setStress(false);setRun(0);setProgress('');setReset(n=>n+1);}} onClose={()=>setDisplayOpen(false)}/>}
+          {mode === "top" && <Compass angle={baseImage?.northAngle??0}/>}
           <Suspense
             fallback={<div className="loading">正在加载 {engine}…</div>}
           >
@@ -481,7 +490,7 @@ function App() {
               onCaptureReady={capture=>{captureScene.current=capture;}}
               sites={(hasSelection?roofs:[]).map(r=>({...roofRect(r),id:r.id,name:r.name,wallHeight:r.wallHeight,pitch:r.pitch,flatHeight:r.flatHeight}))}
               focus={bounds}
-              onDrawingView={v=>{if(!imageOpen)drawingView.current=v;}}
+              onDrawingView={v=>{if(!imageOpen&&(hasSelection||!baseImage?.blank))drawingView.current=v;}}
               restoreDrawingView={restoredDrawingView}
               roof={bounds}
               wallHeight={wallHeight}
@@ -496,10 +505,13 @@ function App() {
               selectedId={selectedId?`${active.id}/${selectedId}`:null}
               issues={worldIssues}
               mode={mode}
+              navigationMode={navigationMode}
+              viewCommand={viewCommand}
               reset={reset}
               visual={{
                 backgroundColor, groundColor,
-                realistic,
+                realistic: quality !== 'simple',
+                quality,
                 guides,
                 stress,
                 run,
@@ -524,7 +536,7 @@ function App() {
           </Suspense>
         </div>
       {canvasMenu&&<div className="canvas-menu-backdrop" onPointerDown={()=>setCanvasMenu(null)} onContextMenu={e=>{e.preventDefault();setCanvasMenu(null);}}><div className="canvas-object-menu" role="menu" style={{left:Math.min(canvasMenu.x,window.innerWidth-170),top:Math.min(canvasMenu.y,window.innerHeight-70)}} onPointerDown={e=>e.stopPropagation()}><button role="menuitem" disabled={!canvasMenu.id.startsWith('@o/')&&!canvasMenu.id.startsWith('@h/')&&!baseImage} onClick={()=>editCanvasObject(canvasMenu.id)}>{canvasMenu.id.startsWith('@o/')||canvasMenu.id.startsWith('@h/')?'修改所选对象':'修改轮廓'}</button></div></div>}
-      {imageOpen && baseImage && <ImageEditor imageOverlays={imageOverlays} obstacleHeight={obstacleHeight} onObstacleHeight={setObstacleHeight} onUndo={history.undo} onRedo={history.redo} canUndo={history.canUndo} canRedo={history.canRedo} intent={drawingIntent} initialForm={drawingForm} initialTool={drawingTool} initialView={drawingView.current} onViewClose={v=>{drawingView.current=v;setRestoredDrawingView({...v});}} base={baseImage} roofs={roofs} activeId={active.id} onBase={b=>{if(baseImage?.metersPerPixel&&b.metersPerPixel&&baseImage.metersPerPixel!==b.metersPerPixel){const k=b.metersPerPixel/baseImage.metersPerPixel;setImageOverlays(items=>items.map(o=>({...o,x:o.x*k,z:o.z*k,width:o.width*k,depth:o.depth*k,originalWidth:o.originalWidth*k})));}setBaseImage(b);setRoofs(rs=>rs.map(r=>({...r,northAngle:b.northAngle})));}} onRoofs={next=>setRoofs(next.map(bindModule))} onActive={chooseRoof} onClose={()=>{setImageOpen(false);setMode('top');setPanel('roof');}}/>}
+      {imageOpen && baseImage && <ImageEditor imageOverlays={imageOverlays} obstacleHeight={obstacleHeight} onObstacleHeight={setObstacleHeight} onUndo={history.undo} onRedo={history.redo} canUndo={history.canUndo} canRedo={history.canRedo} intent={drawingIntent} initialForm={drawingForm} initialTool={drawingTool} initialView={drawingView.current} onViewClose={v=>{drawingView.current=v;setRestoredDrawingView({...v});}} base={baseImage} roofs={roofs} activeId={active.id} activeObjectId={selectedObstacleId} onBase={b=>{if(baseImage?.metersPerPixel&&b.metersPerPixel&&baseImage.metersPerPixel!==b.metersPerPixel){const k=b.metersPerPixel/baseImage.metersPerPixel;setImageOverlays(items=>items.map(o=>({...o,x:o.x*k,z:o.z*k,width:o.width*k,depth:o.depth*k,originalWidth:o.originalWidth*k})));}setBaseImage(b);setRoofs(rs=>rs.map(r=>({...r,northAngle:b.northAngle})));}} onRoofs={next=>setRoofs(next.map(bindModule))} onActive={chooseRoof} onClose={()=>{setImageOpen(false);setMode('top');setPanel('roof');}}/>}
       </section>
 
     </main>

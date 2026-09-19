@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { rectangleFromThree, metricRect, worldToImage, imageToWorld, containsRect } from './drawing-geometry';
+import { rectangleFromThree, metricRect, worldToImage, imageToWorld, containsRect, snapAxis } from './drawing-geometry';
 import { newRoof, toWorld, toLocal, worldArray, roofRect, totals, worldObstacle, projectBounds } from './roof-project';
 import { geometry, footprint, corners, detect } from './domain';
 import { autoLayout } from './auto-layout';
@@ -10,6 +10,11 @@ import type { BaseImage } from './base-image';
 import {catalogFromModules} from './module-library';
 it('returns a zero-size bounds rectangle when there are no roofs yet',()=>{
  expect(projectBounds([])).toEqual({x:0,z:0,width:0,depth:0});
+});
+it('snaps a nearly horizontal or vertical roof edge without changing diagonal edges',()=>{
+ expect(snapAxis({x:0,z:0},{x:100,z:2})).toEqual({x:100,z:0});
+ expect(snapAxis({x:0,z:0},{x:2,z:100})).toEqual({x:0,z:100});
+ expect(snapAxis({x:0,z:0},{x:10,z:8})).toEqual({x:10,z:8});
 });
 it('constructs a rotated rectangle from an edge and perpendicular depth in either drawing direction',()=>{
  const a={x:10,z:20},b={x:40,z:60},c={x:2,z:26};const r=rectangleFromThree(a,b,c)!;

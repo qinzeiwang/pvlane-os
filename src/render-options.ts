@@ -20,7 +20,9 @@ export type PerformanceReport = {
   textures: number;
   passed: boolean;
 };
+export type RenderQuality = 'simple' | 'standard' | 'fine';
 export type VisualOptions = {
+  quality?: RenderQuality;
   backgroundColor?: string;
   groundColor?: string;
   realistic: boolean;

@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useThree } from "@react-three/fiber";
 import * as T from "three";
 import { Sky } from "three/addons/objects/Sky.js";
+import type { RenderQuality } from './render-options';
 import { geometry, initial, type PVArray } from "./domain";
 
 // Synthetic material study: no product photograph, remote texture or model required.
@@ -194,6 +195,7 @@ function Instances({
   );
 }
 export function RealisticScene({
+  quality = 'standard',
   arrays,
   stress,
   solarHour = 9, northAngle=0,
@@ -205,6 +207,7 @@ export function RealisticScene({
   sites,
   focus = {x:0,z:0},
 }: {
+  quality?: RenderQuality;
   sites?: import("./domain").SceneSite[];
   focus?: {x:number;z:number};
   arrays: PVArray[];
@@ -234,7 +237,7 @@ export function RealisticScene({
     horizontal.rotation = Math.PI / 2;
     const roofMap = roofTexture();
     const glass = (map: T.Texture) =>
-      new T.MeshPhysicalMaterial({
+      quality === 'simple' ? new T.MeshLambertMaterial({color:'#263c4e'}) : new T.MeshPhysicalMaterial({
         map,
         color: "#e0eaf0",
         roughness: 0.28,
@@ -264,7 +267,7 @@ export function RealisticScene({
       }),
       pad: new T.MeshStandardMaterial({ color: "#767b77", roughness: 0.93 }),
     };
-  }, []);
+  }, [quality]);
   useEffect(
     () => () => {
       Object.values(resources).forEach((v) => v.dispose());
@@ -275,6 +278,10 @@ export function RealisticScene({
     resources.roofMap.repeat.set(span / 4, depth / 4);
   }, [resources, span, depth]);
   useEffect(() => {
+    if (quality === 'simple') {
+      const old = scene.environment;scene.environment=null;invalidate();
+      return()=>{scene.environment=old;};
+    }
     const sky = new Sky(),
       envScene = new T.Scene();
     sky.scale.setScalar(450);
@@ -289,7 +296,7 @@ export function RealisticScene({
       target = generator.fromScene(envScene, 0.04, 0.1, 1000);
     const old = scene.environment;
     scene.environment = target.texture;
-    scene.environmentIntensity = 0.5;
+    scene.environmentIntensity = quality==='fine'?0.55:0.35;
     invalidate();
     return () => {
       scene.environment = old;
@@ -299,7 +306,7 @@ export function RealisticScene({
       sky.geometry.dispose();
       sky.material.dispose();
     };
-  }, [gl, scene, invalidate, solarHour,northAngle]);
+  }, [gl, scene, invalidate, solarHour,northAngle,quality]);
   useEffect(() => {
     gl.shadowMap.autoUpdate = false;
     gl.shadowMap.needsUpdate = true;
@@ -307,7 +314,7 @@ export function RealisticScene({
     return () => {
       gl.shadowMap.autoUpdate = true;
     };
-  }, [gl, invalidate, arrays, stress, obstacles, span, depth, solarHour,northAngle, wallHeight, sites]);
+  }, [gl, invalidate, arrays, stress, obstacles, span, depth, solarHour,northAngle, wallHeight, sites,quality]);
   useEffect(() => { invalidate(); }, [backgroundColor, groundColor, invalidate]);
   const extent = Math.max(span, depth) * 0.8,
     lightScale = Math.max(1, Math.max(span, depth) / 30);
@@ -325,8 +332,8 @@ export function RealisticScene({
         color="#fff0db"
         intensity={2.6}
         position={[center.x + sun.x * 60 * lightScale, sun.y * 60 * lightScale, center.z + sun.z * 60 * lightScale]}
-        castShadow
-        shadow-mapSize={[2048, 2048]}
+        castShadow={quality!=='simple'}
+        shadow-mapSize={quality==='fine'?[4096,4096]:[2048,2048]}
         shadow-camera-left={-extent}
         shadow-camera-right={extent}
         shadow-camera-top={extent}

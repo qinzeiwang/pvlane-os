@@ -1,5 +1,12 @@
 import { corners, type Point, type Rect } from './domain';
 import type { BaseImage } from './base-image';
+export function snapAxis(a:Point,b:Point,angleDegrees=2):Point {
+ const dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz);if(d<1e-6)return b;
+ const limit=Math.sin(angleDegrees*Math.PI/180);
+ if(Math.abs(dz)/d<=limit)return {...b,z:a.z};
+ if(Math.abs(dx)/d<=limit)return {...b,x:a.x};
+ return b;
+}
 export function rectangleFromThree(a:Point,b:Point,c:Point):Rect|null {
  const dx=b.x-a.x,dz=b.z-a.z,width=Math.hypot(dx,dz);if(width<1e-6)return null;
  const nx=-dz/width,nz=dx/width,d=(c.x-a.x)*nx+(c.z-a.z)*nz;

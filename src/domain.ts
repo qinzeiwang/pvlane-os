@@ -223,6 +223,8 @@ export type ViewProps = {
   onObjectMenu?:(id:string,x:number,y:number)=>void;
   issues: Issue[];
   mode: Mode;
+  navigationMode?:'select'|'pan';
+  viewCommand?:{id:number;factor:number};
   onSelect: (id: string | null) => void;
   onMove: (id: string, x: number, z: number) => void;
   reset: number;
@@ -259,6 +261,7 @@ export function bindPointer(
     select: (id: string | null) => void;
     move: (id: string, x: number, z: number) => void;
     mode: () => Mode;
+    panMode?:()=>boolean;
     orbit: (dx: number, dy: number) => void;
     pan: (x: number, z: number) => void;
     zoom: (factor: number) => void;
@@ -284,7 +287,7 @@ export function bindPointer(
   const down = (e: PointerEvent) => {
     if (drag || ![0, 1].includes(e.button)) return;
     const kind =
-      e.button === 1 ? "pan" : api.mode() === "3d" ? "orbit" : "move";
+      e.button === 1 || api.panMode?.() ? "pan" : api.mode() === "3d" ? "orbit" : "move";
     const p = api.point(e.clientX, e.clientY);
     if (!p && kind !== "orbit") return;
     const arrayId = kind === "move" ? api.hit(e.clientX, e.clientY) : null;

@@ -41,7 +41,7 @@
 .module-library-apply span{font-size:10px;color:#6f7e74}.module-library-apply button{font-size:11px;white-space:nowrap;color:#fff;background:#3e6d56}
 .display-sun{display:flex;flex-wrap:wrap;justify-content:space-between;font-size:11px;gap:6px}.display-sun input{width:100%;margin:0}
 @media(max-width:480px){.module-library-fields{grid-template-columns:1fr}}
-.editor-float .inspector-content{padding:12px 14px;background:var(--page-bg);scrollbar-gutter:stable;overflow-y:auto}
+.editor-float .inspector-content{padding:12px 14px;background:var(--page-bg);scrollbar-gutter:stable;overflow-x:hidden;overflow-y:auto}
 .editor-float .region-context{gap:4px;padding-bottom:9px;margin-bottom:8px;border-bottom:1px solid var(--page-line)}
 .region-name{flex:1;min-width:0}.region-name>button{width:100%;text-align:left;border:0;background:transparent;padding:5px 2px;font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.region-name input{width:100%;margin:0}
 .region-picker-wrap{position:relative;flex:0 0 28px;height:30px;display:grid;place-items:center;color:var(--page-tone)}
@@ -87,7 +87,7 @@
 .module-kind-field{display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:6px;min-width:0;font-size:11px;color:#637580}
 .module-kind-field .choice-segment{padding:2px;border-radius:16px}.module-kind-field .choice-segment button{height:24px;border-radius:13px;padding:2px 5px;font-size:11px}
 .editor-float .roof-type-buttons{border:0;padding:2px;gap:2px;border-radius:7px;background:#5684a312}.editor-float .roof-type-buttons button{height:30px;padding:3px 4px;gap:4px;font-size:11px;border:0}.editor-float .roof-type-buttons button[aria-pressed=true]{background:#d3e5f0;border:0;box-shadow:none;color:#326b91}.editor-float .roof-type-buttons .ui-icon{width:18px;height:18px;flex-shrink:0}
-
+.editor-float .carport-choice{margin:0 0 12px}.editor-float .carport-choice button{height:34px}.editor-float .carport-choice .ui-icon{color:inherit;width:25px;height:25px}
 .editor-float .auto-settings .choice-segment{margin-top:4px}.editor-float .auto-settings .choice-segment button{height:23px;font-size:11px}
 .editor-float .quality-switch{margin-bottom:12px}.editor-float .quality-switch button{height:28px}
 .editor-float .region-commands .ui-icon{width:18px;height:18px;color:var(--page-tone);flex-shrink:0}

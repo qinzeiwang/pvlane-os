@@ -7,6 +7,8 @@ PVLANE 使用以下直接运行时依赖。这些依赖继续适用各自许可�
 | Package / 软件包 | Locked version / 锁定版本 | License / 许可证 | Project / 项目地址 |
 | --- | ---: | --- | --- |
 | `@babylonjs/core` | 8.56.2 | Apache-2.0 | <https://www.babylonjs.com> |
+| `@fontsource-variable/inter` | 5.3.0 | SIL OFL-1.1 | <https://fontsource.org/fonts/inter> |
+| `@fontsource-variable/noto-sans-sc` | 5.3.0 | SIL OFL-1.1 | <https://fontsource.org/fonts/noto-sans-sc> |
 | `@react-three/fiber` | 9.7.0 | MIT | <https://github.com/pmndrs/react-three-fiber> |
 | `@tabler/icons-react` | 3.46.0 | MIT | <https://tabler.io/icons> |
 | `pdfjs-dist` | 6.3.289 | Apache-2.0 | <https://mozilla.github.io/pdf.js/> |
@@ -21,6 +23,10 @@ The versions above are taken from the current lockfile and must be updated when 
 General UI icons come from Tabler Icons. The flat, mono-pitch, gable, and other specialized PVLANE symbols are project-specific drawings following the same 24 × 24 / 2 px outline convention.
 
 通用界面图标来自 Tabler Icons。平屋面、单坡、双坡及其他 PVLANE 专用符号为项目自行绘制，沿用 24 × 24、2 px 描边规范。
+
+The interface bundles Inter and Noto Sans SC. Their SIL Open Font License 1.1 texts are included in `docs/font-licenses/`.
+
+界面随构建分发 Inter 与 Noto Sans SC 字体，其 SIL Open Font License 1.1 许可证全文位于 `docs/font-licenses/`。
 
 ## Babylon.js notice
 

@@ -1,0 +1,162 @@
+@import './tokens.css';
+
+/* v0.1 adapter: shared product surfaces; drawing SVG / scene materials stay physical. */
+:root{--font-ui:var(--pv-font-sans);--text:var(--pv-text);--text-secondary:var(--pv-text-secondary);--muted:var(--pv-text-secondary);--line:var(--pv-border);--surface:var(--pv-surface);--surface-soft:var(--pv-surface-subtle);--green:var(--pv-accent);--site:var(--pv-accent);--layout:var(--pv-accent);--display:var(--pv-accent);--report:var(--pv-accent);--site-soft:var(--pv-accent-soft);--layout-soft:var(--pv-accent-soft);--display-soft:var(--pv-accent-soft);--report-soft:var(--pv-accent-soft);--size-caption:12px;--size-label:13px;--size-body:14px;--size-heading:14px;--control-height:36px;--radius-control:6px;--status-done:var(--pv-success);--status-pending:var(--pv-warning);--status-error:var(--pv-danger);font-family:var(--pv-font-sans);font-size:14px;color:var(--pv-text);background:var(--pv-bg)}
+body{font-size:14px;line-height:1.5;font-family:var(--pv-font-sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button,input,select,textarea,summary{font-family:var(--pv-font-sans);transition:background-color var(--pv-duration-fast),border-color var(--pv-duration-fast),box-shadow var(--pv-duration-fast)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--pv-accent);outline-offset:2px;box-shadow:var(--pv-ring)}
+button:disabled{cursor:default;opacity:.42}button:not(:disabled):hover{background-color:var(--pv-surface-hover)}
+.pvlane-logo{display:block;object-fit:contain;width:170px;height:34px;flex-shrink:0}.start-brand .pvlane-logo{width:280px;height:56px}.demo-brand .pvlane-logo{width:170px;height:34px}
+.topbar{height:60px;background:var(--pv-surface);border-color:var(--pv-border);gap:20px}.topbar .project-title{font-size:14px;font-weight:500}.top-actions .icon-button{width:36px;height:36px;color:var(--pv-text-secondary);border-radius:var(--pv-radius-xs)}.top-actions .save-action{color:var(--pv-accent)}
+.ui-icon,.top-actions .ui-icon,.design-tabs .ui-icon,.region-menu .ui-icon,.region-more .ui-icon{width:20px;height:20px;stroke-width:1.75}
+.editor-float[data-page]{--page-bg:var(--pv-surface);--page-tone:var(--pv-accent);--page-line:var(--pv-border);width:360px;background:var(--pv-surface);border-color:var(--pv-border-strong);backdrop-filter:none;box-shadow:var(--pv-shadow-float);border-radius:var(--pv-radius-md)}
+.editor-float .editor-heading{background:var(--pv-surface);height:40px;padding:8px 16px}.editor-float .editor-heading h1{font-size:14px;font-weight:600}
+.editor-float .design-tabs{background:var(--pv-surface);border-color:var(--pv-border)}
+.editor-float .design-tabs button[data-tone]{--tone:var(--pv-accent);--tint:var(--pv-accent-soft);height:40px;font-size:14px;color:var(--pv-text-secondary)}
+.editor-float .design-tabs button.active{color:var(--pv-accent);background:transparent;border-bottom-color:var(--pv-accent)}
+.editor-float .inspector-content{background:var(--pv-surface);padding:12px 16px;color:var(--pv-text)}
+.editor-float .inspector-content :is(input:not([type=checkbox]):not([type=range]),select),.editor-float .layout-rules :is(input:not([type=checkbox]),select){height:36px!important;border:1px solid var(--pv-border-strong);border-radius:var(--pv-radius-xs);background:var(--pv-surface);color:var(--pv-text);font-size:14px}
+.editor-float .inspector-content :is(label,.rule-row),.editor-float .layout-rules label{font-size:13px;color:var(--pv-text-secondary)}
+.editor-float .region-context{border-color:var(--pv-border);padding-bottom:12px;margin-bottom:12px}.editor-float .region-context .icon-button{width:32px;height:36px;color:var(--pv-text-secondary)}
+.editor-float :is(.roof-type-buttons,.choice-segment){border-color:var(--pv-border);background:var(--pv-surface-subtle);border-radius:var(--pv-radius-xs);box-shadow:none}
+.editor-float :is(.roof-type-buttons,.choice-segment) button{color:var(--pv-text-secondary);border-radius:5px;font-size:13px;box-shadow:none}
+.editor-float :is(.roof-type-buttons,.choice-segment) button:is(.selected,.active,[aria-pressed=true]){color:var(--pv-accent);background:var(--pv-accent-soft);border-color:var(--pv-accent-border)}
+.editor-float .roof-type-buttons .ui-icon{width:24px;height:24px;stroke-width:1.75}
+.editor-float :is(.region-section,.layout-section,.object-section){border-color:var(--pv-border)}
+.editor-float :is(.region-section h3,.object-section h3,.layout-section h3,.layout-rules h3){font-size:13px;color:var(--pv-text);font-weight:600}
+.editor-float :is(.module-picker small,.region-reference,.summary-spec,.report-includes,.report-intro span,.report-facts dt){font-size:12px;color:var(--pv-text-secondary)}
+.editor-float .module-picker select{height:36px;font-size:14px}.editor-float .module-picker .icon-button{height:36px}
+.editor-float .design-result{background:var(--pv-surface-subtle);border-color:var(--pv-border);padding:10px 16px;font-size:13px}.editor-float .result-line b{font-size:16px}.editor-float .file-message{font-size:12px;color:var(--pv-text-secondary)}
+.editor-float .run-actions .primary-action,.editor-float .report-primary{background:var(--pv-accent)!important;color:#fff;border-color:var(--pv-accent);height:36px;font-size:14px;border-radius:var(--pv-radius-xs)}.editor-float .run-actions .primary-action:hover,.editor-float .report-primary:hover{background:var(--pv-accent-hover)!important}
+.editor-float .run-actions button{height:36px;font-size:13px}.editor-float .report-intro{color:var(--pv-text)}.editor-float .report-intro>.ui-icon{color:var(--pv-text-secondary)}.editor-float .report-facts dd{font-size:14px;color:var(--pv-text)}
+.project-menu>div,.region-menu-items,.display-popover,.image-overlay-panel{background:var(--pv-surface);border-color:var(--pv-border);backdrop-filter:none;box-shadow:var(--pv-shadow-float);color:var(--pv-text);border-radius:var(--pv-radius-sm)}
+.project-menu>div button,.region-menu-items button{min-height:36px;font-size:13px}.project-menu>div .ui-icon,.image-overlay-panel .ui-icon{color:var(--pv-text-secondary)}
+.project-dialog,.statistics-panel,.sheet-dialog{background:var(--pv-surface);color:var(--pv-text);border-color:var(--pv-border);box-shadow:var(--pv-shadow-modal);border-radius:var(--pv-radius-md)}
+.project-dialog :is(input:not([type=checkbox]):not([type=range]),select){background:var(--pv-surface);border-color:var(--pv-border-strong);border-radius:var(--pv-radius-xs);min-height:36px;font-size:14px}.project-dialog label{font-size:13px;color:var(--pv-text-secondary)}.project-dialog h2{font-size:18px;font-weight:600;color:var(--pv-text)}
+.project-dialog button{font-size:14px;min-height:36px}.project-dialog :is(.primary,.primary-action),.module-library-apply button{background:var(--pv-accent);color:#fff}.project-dialog .module-library{border-color:var(--pv-border)}
+.viewport-tools,.image-tools,.image-editor .grouped-drawing-tools{background:var(--pv-surface);border-color:var(--pv-border);backdrop-filter:none;color:var(--pv-text-secondary)}.viewport-tools .icon-button.active{color:var(--pv-accent);background:var(--pv-accent-soft);border-color:var(--pv-accent-border)}
+.project-start{background:var(--pv-bg)}.project-start::before,.project-start::after{display:none}.start-card{background:transparent;border:0;box-shadow:none;border-radius:0;width:min(100%,540px);padding:32px}.start-card h1{color:var(--pv-text);font-size:30px;letter-spacing:0;font-weight:600}.start-eyebrow,.start-options small{color:var(--pv-text-secondary)}.start-options{display:flex;flex-direction:column;gap:0;border-block:1px solid var(--pv-border)}.start-options>button{display:grid;grid-template-columns:28px 1fr;gap:2px 14px;align-items:center;min-height:82px;padding:16px 8px;background:transparent;border:0;border-bottom:1px solid var(--pv-border);box-shadow:none;border-radius:0}.start-options>button:last-child{border-bottom:0}.start-options>button .start-option-icon{grid-row:1/3;padding:0;margin:0;background:transparent}.start-options>button small{grid-column:2}.start-options>button:hover{background:var(--pv-surface-subtle);box-shadow:none}.start-option-icon,.start-option-icon.open{background:var(--pv-surface-subtle);color:var(--pv-accent);border-radius:var(--pv-radius-sm)}.start-options strong{color:var(--pv-text);font-size:16px}.start-form-actions button{color:var(--pv-text-secondary)}
+.drawing-demo{background:var(--pv-bg);color:var(--pv-text)}.demo-header,.demo-setup,.demo-steps,.demo-status{background:var(--pv-surface);border-color:var(--pv-border)}.demo-canvas{background:var(--pv-surface-subtle)}.drawing-demo .demo-primary{background:var(--pv-accent);border-color:var(--pv-accent);color:#fff}.drawing-demo .demo-primary:hover{background:var(--pv-accent-hover)}.demo-steps .current{color:var(--pv-accent);border-color:var(--pv-accent)}.demo-steps .done{color:var(--pv-success)}.demo-file,.drawing-demo button,.demo-download{border-color:var(--pv-border-strong);border-radius:var(--pv-radius-xs)}.demo-empty svg{stroke:#8995a8;fill:var(--pv-surface)}.demo-empty p,.demo-status,.demo-speed{color:var(--pv-text-secondary)}.demo-sheet-host .sheet-dialog{box-shadow:none}
+.sheet-dialog :is(button,select){font-size:13px}.sheet-controls select{border-color:var(--pv-border-strong)}.sheet-recommend{background:var(--pv-accent-soft);border-color:var(--pv-accent-border);color:var(--pv-accent)}.sheet-heading,.sheet-controls,.sheet-preview-footer{border-color:var(--pv-border)}.sheet-preview-area{background:var(--pv-surface-subtle)}
+@media(max-width:700px){:root{--size-body:16px;--size-label:14px;--size-caption:13px}.topbar{height:auto;min-height:60px;flex-wrap:wrap;gap:6px 12px;padding:6px 12px}.topbar .pvlane-logo{width:130px;height:30px}.topbar .top-actions{gap:2px}.top-actions .icon-button{width:36px;height:44px}.editor-float[data-page]{max-width:calc(100vw - 20px)}.editor-float .design-tabs button[data-tone]{height:44px}.editor-float .inspector-content :is(input:not([type=checkbox]):not([type=range]),select),.editor-float .layout-rules :is(input:not([type=checkbox]),select){height:44px!important;font-size:16px}.editor-float .region-context .icon-button{height:44px;width:36px}.editor-float .run-actions button,.project-dialog button,.drawing-demo button{min-height:44px}.project-dialog :is(input:not([type=checkbox]):not([type=range]),select){min-height:44px;font-size:16px}.project-dialog label,.editor-float .inspector-content label{font-size:14px}.demo-header{padding:0 12px;gap:12px}.demo-brand .pvlane-logo{width:125px;height:28px}.demo-header>span{font-size:13px;padding-left:12px}.demo-back{font-size:12px!important}.demo-steps>div{min-height:44px}.start-card h1{font-size:26px}.start-brand .pvlane-logo{width:230px;height:46px}}
+.new-region .region-types,.editor-float .region-types{gap:2px;padding:3px;background:var(--pv-surface-subtle);border:0;border-radius:var(--pv-radius-xs)}.new-region .region-types button,.editor-float .region-types button{flex-direction:row;gap:6px;height:34px;font-size:13px;border:1px solid transparent;border-radius:3px;color:var(--pv-text-secondary);background:transparent}.new-region .region-types .ui-icon,.editor-float .region-types .ui-icon{width:20px;height:20px;stroke-width:1.75}
+.new-region .region-types button[aria-pressed=true],.editor-float .region-types button[aria-pressed=true]{color:var(--pv-text);border-color:var(--pv-border);background:var(--pv-surface)}
+.editor-float .layout-rules .choice-segment{height:36px;min-height:36px;background:var(--pv-surface-subtle);border-color:var(--pv-border-strong)}.editor-float .layout-rules .choice-segment button{height:30px;line-height:30px;font-size:13px}.editor-float .layout-rules .choice-segment button[aria-pressed=true]{color:var(--pv-accent);background:var(--pv-surface);box-shadow:0 1px 3px #191c2610}
+.editor-float[data-page=layout] .run-actions button{height:36px;font-size:13px}.editor-float[data-page=layout] .run-actions .all-layout{border-color:var(--pv-border-strong);background:var(--pv-surface);color:var(--pv-text-secondary)}
+.project-dialog.settings-dialog{background:var(--pv-surface);color:var(--pv-text);font-family:var(--pv-font-sans);border-color:var(--pv-border);border-radius:var(--pv-radius-md);box-shadow:var(--pv-shadow-modal)}
+.project-dialog.settings-dialog h3,.project-dialog.settings-dialog .energy-settings summary{color:var(--pv-text);font-size:14px}.project-dialog.settings-dialog label{color:var(--pv-text-secondary);font-size:13px}.project-dialog.settings-dialog button{color:var(--pv-text-secondary);border-color:var(--pv-border-strong);min-height:36px}.project-dialog.settings-dialog button:hover:not(:disabled){background:var(--pv-surface-hover);border-color:var(--pv-border-strong)}
+.project-dialog.settings-dialog .settings-footer{background:var(--pv-surface-subtle);border-color:var(--pv-border)}.project-dialog.settings-dialog .settings-footer button{background:var(--pv-accent);border-color:var(--pv-accent);color:#fff}.project-dialog.settings-dialog :is(button,input):focus-visible{outline-color:var(--pv-accent)}
+.viewport .viewport-tools nav button.active,.viewport-tools button[aria-pressed=true]{background:var(--pv-accent);color:#fff;border-color:var(--pv-accent)}
+.editor-float .layout-rules .direction-control{height:36px;font-size:13px;background:var(--pv-surface);border-color:var(--pv-border-strong)}.editor-float .direction-control .ui-icon{color:var(--pv-accent)}
+@media(max-width:700px){.editor-float .layout-rules .choice-segment{height:44px}.editor-float .layout-rules .choice-segment button{height:38px;line-height:38px}.project-dialog.settings-dialog label{font-size:14px}.project-dialog.settings-dialog button{min-height:44px}}
+/* Type hierarchy: labels 13, values 14, section titles 13/600, captions 12. */
+.editor-float{font-size:14px;line-height:1.5}
+.editor-float .panel-titlebar{height:36px;min-height:36px;background:var(--pv-surface);padding:0 16px}
+.editor-float .panel-titlebar h1,.editor-float .region-section h2,.editor-float .region-objects h2,.editor-float .layout-inspector h2{font:600 13px/20px var(--pv-font-sans);color:var(--pv-text);height:auto;min-height:20px;letter-spacing:0}
+.editor-float .region-section,.editor-float .layout-inspector .module-picker{padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid var(--pv-border)}
+.editor-float .region-objects{padding-bottom:10px;margin-bottom:10px}
+.editor-float .module-picker small,.editor-float .layout-rules small,.editor-float .result-detail summary,.editor-float .report-includes,.editor-float .report-intro span{font:400 12px/1.6 var(--pv-font-sans);color:var(--pv-text-secondary)}
+.editor-float .result-detail summary.ok{color:var(--pv-success)}.editor-float .result-detail summary.pending{color:var(--pv-warning)}.editor-float .result-detail summary.blocked{color:var(--pv-danger)}
+.editor-float .region-context select{font-weight:500}.editor-float .region-context{padding-bottom:12px;margin-bottom:16px}
+.editor-float .design-result{background:var(--pv-surface);padding-top:12px}.editor-float .result-line{font-size:13px}.editor-float .result-line b{font-size:15px;font-weight:600}
+.editor-float .object-item,.editor-float .object-inline-editor{border-radius:0;box-shadow:none}.editor-float .object-item{border:0;border-bottom:1px solid var(--pv-border)}
+.editor-float .report-readiness{background:transparent;border:0;border-left:2px solid currentColor;border-radius:0;padding:2px 10px;font-size:12px}
+.editor-float .report-facts{padding:14px 0}.editor-float .report-facts dd{font-size:15px;font-weight:600}.editor-float .report-includes>span{font-weight:600;color:var(--pv-text)}
+.statistics-totals{gap:0}.statistics-totals>div{background:transparent;box-shadow:none;border-radius:0;border-bottom:1px solid var(--pv-border);padding:16px}
+.statistics-panel :is(td,th){border:0;border-bottom:1px solid var(--pv-border);padding:10px 12px;font-size:13px}.statistics-panel th{font-weight:500;background:var(--pv-surface-subtle)}.statistics-panel td{text-align:right}.statistics-panel td:first-child{text-align:left}
+.report-preview{border-radius:var(--pv-radius-md);background:var(--pv-surface);box-shadow:var(--pv-shadow-modal)}.report-preview h2{font-size:16px;font-weight:600}.report-preview button{font-size:13px}
+.project-dialog.settings-dialog :is(input,select){font-family:var(--pv-font-sans);font-size:14px}.project-dialog.settings-dialog :is(small,.settings-note){font-family:var(--pv-font-sans);font-size:12px;line-height:1.6}
+.display-popover :is(input,select,label,button){font-family:var(--pv-font-sans)}
+@media(max-width:700px){.editor-float .region-types button{height:40px}.editor-float .inspector-content{padding:12px 16px}.editor-float .report-includes,.editor-float .module-picker small,.editor-float .layout-rules small,.editor-float .result-detail summary{font-size:13px}.project-dialog.settings-dialog :is(input,select){font-size:16px}.start-card{padding:24px 8px}.start-options>button{min-height:82px}.start-options small{font-size:13px}.statistics-panel :is(td,th){font-size:13px}}
+
+/* Geometric PVLANE wordmark. */
+.pvlane-logo{display:inline-flex;align-items:center;white-space:nowrap}
+.pvlane-wordmark{display:block;width:100%;height:100%;object-fit:contain}
+.start-brand .pvlane-logo{width:180px;height:32px}
+@media(max-width:700px){.topbar .pvlane-logo,.demo-brand .pvlane-logo{width:116px;height:20px}.start-brand .pvlane-logo{width:170px;height:30px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* UI icon contract: hit targets are independent from the visible glyph.
+   Excludes brand art, CAD dimensions and physical scene direction markers. */
+.ui-icon[data-icon]{width:18px!important;height:18px!important;stroke-width:1.75!important;fill:none;flex:none;vertical-align:middle;overflow:visible}
+:is(.top-actions,.design-tabs,.region-types,.roof-type-buttons,.carport-choice,.region-forms,.start-option-icon) .ui-icon[data-icon]{width:20px!important;height:20px!important}
+:is(.help-icon,.report-readiness,.object-edit-status,.region-object-list,.selection-context,.demo-steps,.settings-secondary-link) .ui-icon[data-icon]{width:16px!important;height:16px!important}
+.editor-float .region-section h2>.ui-icon[data-icon]{color:var(--pv-text-secondary)}
+.sheet-view-toolbar button,.photo-match main nav button{display:inline-flex;align-items:center;justify-content:center}
+.demo-steps>div>span{display:inline-flex;align-items:center;justify-content:center}
+
+/* Container rhythm: 8px floating surfaces, 4px controls, 12px separation. */
+:root{--pv-panel-width:360px;--pv-workspace-inset:20px;--pv-float-gap:12px}
+.editor-float[data-page]{width:var(--pv-panel-width);left:var(--pv-workspace-inset)}
+.viewport .viewport-tools{left:calc(var(--pv-workspace-inset) + var(--pv-panel-width) + var(--pv-float-gap));gap:4px;padding:4px;border:1px solid var(--pv-border-strong);border-radius:var(--pv-radius-md);background:var(--pv-surface);box-shadow:var(--pv-shadow-float);align-items:center}
+.viewport .viewport-tools nav{display:flex;height:28px;align-items:center;gap:2px;padding:0 8px 0 0;margin-right:4px;border:0;border-right:1px solid var(--pv-border);border-radius:0;background:transparent;box-shadow:none;backdrop-filter:none}
+.viewport .viewport-tools nav button,.viewport .viewport-tools>.icon-button{height:28px;min-width:28px;border:0;border-radius:var(--pv-radius-xs);box-shadow:none;background:transparent;color:var(--pv-text-secondary)}
+.viewport .viewport-tools>.icon-button{width:28px}
+.viewport .viewport-tools nav button.active,.viewport .viewport-tools>.icon-button.active{background:var(--pv-accent-soft);color:var(--pv-accent)}
+.editor-float .region-fields{gap:12px}.editor-float .region-field{gap:4px}
+.editor-float .region-objects{padding-bottom:12px;margin-bottom:12px}
+.editor-float .run-actions{gap:8px;margin-top:8px}
+.display-popover,.image-overlay-panel{border-radius:var(--pv-radius-md);padding:16px}
+.display-popover header,.image-overlay-panel header{padding-bottom:12px;margin-bottom:12px}
+.project-menu>div,.region-menu-items{padding:4px}
+.project-menu>div button,.region-menu-items button{border-radius:var(--pv-radius-xs)}
+@media(max-width:700px){
+ :root{--pv-workspace-inset:10px}
+ .viewport .viewport-tools{flex-direction:row;left:auto;right:12px;top:auto;bottom:12px;max-width:calc(100% - 24px)}
+ .viewport .viewport-tools nav button,.viewport .viewport-tools>.icon-button{height:36px;min-width:36px}
+ .viewport .viewport-tools nav{height:36px}
+ .viewport .viewport-tools>.icon-button{width:36px}
+}
+
+/* 0918 user QA: compact identity, predictable actions, editable calibration. */
+.topbar .pvlane-logo,.demo-brand .pvlane-logo{width:132px;height:22px}
+.start-brand .pvlane-logo{width:180px;height:32px}
+.topbar{position:relative;z-index:30;overflow:visible}.top-actions,.project-menu{overflow:visible}
+.top-actions [data-tooltip]{position:relative}
+.top-actions [data-tooltip]:is(:hover,:focus-visible)::after{content:attr(data-tooltip);position:absolute;right:0;top:calc(100% + 8px);z-index:80;white-space:nowrap;pointer-events:none;background:var(--pv-text);color:white;padding:5px 8px;border-radius:4px;font:400 12px/18px var(--pv-font-sans)}
+.project-menu>div{right:0;left:auto;max-width:calc(100vw - 24px);max-height:calc(100dvh - 84px);overflow-y:auto}
+.project-menu[open]>summary::after{display:none}
+button,summary,.viewport-tools,.region-menu-items{user-select:none}
+.editor-float .region-more summary,.editor-float .region-more .ui-icon{color:var(--pv-text-secondary)}
+.north-compass{pointer-events:none;cursor:default}
+.viewport .viewport-tools{padding:3px}.viewport .viewport-tools nav button,.viewport .viewport-tools>.icon-button{border-radius:4px}
+.image-editor .grouped-drawing-tools{align-items:center;gap:8px;padding:8px 12px;flex-wrap:wrap}
+.image-editor :is(.north-controls,.calibration-inline,.drawing-tool-group){display:flex;align-items:center;gap:8px}
+.image-editor .image-tools label{display:flex;align-items:center;gap:8px;margin:0;white-space:nowrap}
+.image-editor .image-tools :is(input:not([type=checkbox]),select,button){height:36px!important;min-height:36px;margin:0!important;border-radius:4px;box-sizing:border-box}
+.image-editor .image-tools input:not([type=checkbox]){width:112px!important;min-width:112px;padding:6px 8px}
+.image-editor .image-tools .drawing-name input{width:150px!important}
+.image-editor .image-tools button{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.image-editor .image-tools .drawing-done{width:auto;min-width:88px;background:var(--pv-accent);color:white;border:1px solid var(--pv-accent);padding:0 12px}
+.image-editor .north-controls{flex-wrap:wrap}.north-reference{font-size:12px;color:var(--pv-text-secondary)}
+.editor-float[data-page=layout] .inspector-content{padding:12px 16px}
+.editor-float[data-page=layout] :is(.module-picker,.layout-section){padding-bottom:12px;margin-bottom:12px}
+.editor-float .run-actions{display:flex;gap:8px}.editor-float .run-actions button{flex:1;min-width:0;margin:0;height:36px;padding:0 12px}
+.start-project-fields{display:grid;gap:12px;margin-bottom:20px}.start-project-fields label{margin:0;font-size:13px}.start-project-fields input{height:36px;background:var(--pv-surface)}
+@media(max-width:700px){.image-editor .image-tools :is(input:not([type=checkbox]),select,button){height:44px!important;min-height:44px}.topbar .pvlane-logo{width:116px;height:20px}.editor-float .run-actions button{height:44px}}
+
+.image-editor .image-tools .selected{background:var(--pv-accent-soft);border-color:var(--pv-accent-border);color:var(--pv-accent)}
+@media(min-width:701px){.viewport :is(.display-popover,.image-overlay-panel){left:calc(var(--pv-workspace-inset) + var(--pv-panel-width) + var(--pv-float-gap));right:auto;top:58px;max-height:calc(100% - 74px);overflow-y:auto}}
+@media(max-width:700px){.viewport :is(.display-popover,.image-overlay-panel){right:12px;left:auto;top:auto;bottom:68px;max-height:calc(100% - 92px);overflow-y:auto}}
+
+.editor-float .design-result{overflow-y:auto;scrollbar-gutter:stable;scrollbar-width:thin;flex-shrink:0}
+
+.topbar{z-index:50}
+.image-editor .grouped-drawing-tools{column-gap:16px;row-gap:8px}
+.image-editor :is(.north-controls,.calibration-inline){column-gap:12px;row-gap:8px}
+.image-editor .drawing-name{padding-right:12px;border-right:1px solid var(--pv-border)}
+.image-editor .drawing-tool-group{padding-right:12px}
+.drawing-roof-context{position:absolute;left:12px;bottom:44px;z-index:3;padding:4px 8px;border-radius:4px;background:var(--pv-surface);color:var(--pv-text-secondary);font-size:12px;pointer-events:none}
+.image-editor .drawing-tool-group:empty{display:none}
+
+/* 0919 workflow QA: numeric creation, visible direction actions and touch navigation. */
+.editor-float.is-collapsed{width:132px!important;max-height:36px!important}
+.editor-float .region-section h2>.icon-button{width:28px;height:28px;margin-left:auto;border:1px solid var(--pv-border);border-radius:var(--pv-radius-xs);color:var(--pv-text-secondary)}
+.editor-float .region-section h2>.icon-button:hover,.editor-float .region-section h2>.icon-button:focus-visible{background:var(--pv-accent-soft);border-color:var(--pv-accent-border);color:var(--pv-accent)}
+.viewport-tools [data-tooltip],.editor-float [data-tooltip]{position:relative}
+.viewport-tools [data-tooltip]:is(:hover,:focus-visible)::after,.editor-float [data-tooltip]:is(:hover,:focus-visible)::after{content:attr(data-tooltip);position:absolute;left:50%;top:calc(100% + 7px);transform:translateX(-50%);z-index:90;white-space:nowrap;pointer-events:none;background:var(--pv-text);color:#fff;padding:5px 8px;border-radius:4px;font:400 12px/18px var(--pv-font-sans)}
+.icon-button[aria-label]:not([data-tooltip]){position:relative}
+.icon-button[aria-label]:not([data-tooltip]):is(:hover,:focus-visible)::after{content:attr(aria-label);position:absolute;left:50%;top:calc(100% + 7px);transform:translateX(-50%);z-index:90;white-space:nowrap;pointer-events:none;background:var(--pv-text);color:#fff;padding:5px 8px;border-radius:4px;font:400 12px/18px var(--pv-font-sans)}
+.editor-float .region-section h2>.icon-button:is(:hover,:focus-visible)::after{left:auto;right:calc(100% + 6px);top:50%;transform:translateY(-50%)}
+@media(max-width:960px){.viewport .viewport-tools{left:auto;right:12px;top:auto;bottom:12px}.topbar .project-title{max-width:150px}.topbar{gap:12px}.top-actions{gap:3px}}
+@media(max-width:700px){.editor-float.is-collapsed{width:132px!important}.viewport-tools [data-tooltip]::after{display:none}}

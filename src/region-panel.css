@@ -22,13 +22,17 @@
 .editor-float .region-objects{margin-bottom:10px;padding-bottom:10px}
 .editor-float .region-objects:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}
 .editor-float .region-objects h2{margin-bottom:4px}
-.object-rows{display:grid;gap:2px;max-height:230px;overflow-y:auto;scrollbar-width:thin}
+.object-rows{display:grid;gap:2px;overflow:visible}
 .object-row-wrap{border:1px solid transparent;border-radius:4px}
 .object-row-wrap.is-selected{background:#dcebf5a6;border-color:#b4cedf}
 .object-row{display:flex;align-items:center;min-height:30px;gap:4px}
-.editor-float .object-row-select{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;border:0;background:transparent;box-shadow:none;padding:5px 8px;font-size:12px;font-weight:400;color:var(--text-secondary)}
+.editor-float .object-row-select{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;border:0;background:transparent;box-shadow:none;padding:5px 8px;font-size:12px;font-weight:400;color:var(--text-secondary);display:flex;align-items:center;gap:8px}
+.editor-float .object-row-select small{margin-left:auto;color:var(--muted);font-size:10px;font-weight:400}
 .editor-float .object-row-select[aria-pressed=true]{color:var(--site);font-weight:600}
-.editor-float .object-row .object-row-edit{margin-right:4px;width:25px;height:25px;border:0;background:transparent}
+.editor-float .object-row :is(.object-row-edit,.object-row-delete){width:25px;height:25px;border:0;background:transparent;opacity:0;pointer-events:none;transition:opacity .12s ease,background-color .12s ease,color .12s ease}
+.editor-float .object-row .object-row-delete{margin-right:4px;color:var(--muted)}
+.editor-float .object-row:is(:hover,:focus-within) :is(.object-row-edit,.object-row-delete){opacity:1;pointer-events:auto}
+.editor-float .object-row .object-row-delete:hover{color:#a24b45;background:#fff3f2}
 .object-row-wrap:hover{background:#ffffff60}
 .object-inline-editor{padding:4px 8px 8px}
 .editor-float .object-inline-editor .region-field{display:grid;grid-template-columns:48px 90px;align-items:center;margin:2px 0 8px}
@@ -81,10 +85,15 @@
 .editor-float .layout-rules .spacing-summary{font-size:11px;padding:8px 0;border:0;border-top:1px solid #b9d0c280;background:transparent;border-radius:0}
 .editor-float .layout-rules .checkline{font-size:11px;margin:4px 0 10px}
 .editor-float .layout-rules .checkline input{width:14px;height:14px!important;margin:0!important}
-
+.editor-float .layout-rules .carport-start{display:grid;grid-template-columns:1fr 1fr;align-items:center;margin-bottom:12px}
 .editor-float[data-page=layout] .run-actions button{height:32px;font-size:12px;border-radius:5px}
 .editor-float[data-page=layout] .run-actions .all-layout{background:#ffffff80;border:1px solid #bed2c7;color:#3f6d57}
 .editor-float .layout-inspector .layout-rules>h2{display:block;margin-bottom:8px}
+
+.editor-float .layout-rules.is-carport{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.editor-float .layout-rules.is-carport>h2{grid-column:1/-1}
+.editor-float .layout-rules.is-carport .carport-start{display:flex;flex-direction:column;align-items:stretch;margin:0}
+.editor-float .layout-rules.is-carport .compact-rules{display:block;margin:0}
 
 .editor-float .module-library-entry.icon-button{width:24px;height:24px;display:flex;align-items:center;justify-content:center;padding:3px}
 .editor-float .module-library-entry .ui-icon{width:18px;height:18px;stroke-width:2}
@@ -97,7 +106,8 @@
 
 .editor-float .layout-rules .direction-control{width:100%;height:32px;box-sizing:border-box;display:flex;align-items:center;justify-content:flex-start;gap:8px;margin:0;padding:4px 8px;border:1px solid #bed2c7;border-radius:5px;background:#ffffff90;color:var(--text-secondary);font:400 12px var(--font-ui)}
 .editor-float .direction-control .ui-icon{width:18px;height:18px;flex-shrink:0;color:#39795c}
-.editor-float .direction-control:has(svg path[d^="M12 3"]) .ui-icon{fill:currentColor;stroke-width:1}
+.editor-float .layout-rules.is-carport{display:block}
+.editor-float .layout-rules.is-carport .carport-start{width:calc(50% - 6px)}
 
 .north-compass{position:absolute;right:20px;top:64px;width:60px;height:60px;padding:0;border:0;background:transparent;filter:drop-shadow(0 3px 7px #243d4d18);cursor:pointer;z-index:3}
 .north-compass svg{width:100%;height:100%;overflow:visible}

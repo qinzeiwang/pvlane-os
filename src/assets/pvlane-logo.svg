@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1236 214" role="img" aria-label="PVLANE logo geometric parametric v18" fill="none">
+  <!-- Master stroke system: normal=42px; horizontal optical=40px; N slant=56deg -->
+  <defs>
+    <linearGradient id="navy" x1="0" y1="0" x2="0.85" y2="1">
+      <stop offset="0%" stop-color="#1D314A"/>
+      <stop offset="55%" stop-color="#223752"/>
+      <stop offset="100%" stop-color="#263B56"/>
+    </linearGradient>
+    <linearGradient id="navyN" gradientUnits="userSpaceOnUse" x1="859" y1="19" x2="1031" y2="192">
+      <stop offset="0%" stop-color="#1D314A"/>
+      <stop offset="55%" stop-color="#223752"/>
+      <stop offset="100%" stop-color="#263B56"/>
+    </linearGradient>
+    <linearGradient id="v1" x1="0" y1="0" x2="1" y2="0.8">
+      <stop offset="0%" stop-color="#1972C9"/>
+      <stop offset="100%" stop-color="#1E5FA7"/>
+    </linearGradient>
+    <linearGradient id="v2" x1="0" y1="0" x2="1" y2="0.8">
+      <stop offset="0%" stop-color="#3C96F0"/>
+      <stop offset="100%" stop-color="#65A9EB"/>
+    </linearGradient>
+    <linearGradient id="v3" x1="0" y1="0" x2="1" y2="0.8">
+      <stop offset="0%" stop-color="#69B0EC"/>
+      <stop offset="100%" stop-color="#85C0F0"/>
+    </linearGradient>
+  </defs>
+  <g id="P">
+    <path d="M 18 19 H 126.5
+             A 58.5 58.5 0 0 1 126.5 136
+             H 60 V 192 H 18 Z
+             M 60 59 H 126.5
+             A 18.5 18.5 0 0 1 126.5 96
+             H 60 Z"
+          fill="url(#navy)" fill-rule="evenodd"/>
+  </g>
+  <g id="V" transform="translate(-0.26 0)">
+    <polygon points="201.26,19.00 416.74,19.00 391.33,69.00 226.67,69.00" fill="url(#v1)"/>
+    <polygon points="231.25,78.00 386.75,78.00 361.85,127.00 256.15,127.00" fill="url(#v2)"/>
+    <polygon points="260.73,136.00 357.27,136.00 332.36,185.00 285.64,185.00" fill="url(#v3)"/>
+  </g>
+  <g id="L" transform="translate(1.48 0)">
+    <path d="M 441 19 H 483 V 152 H 588 V 192 H 441 Z" fill="url(#navy)"/>
+  </g>
+  <g id="A" transform="translate(-3.78 0)">
+    <path d="M 699.64 19.00 L 746.36 19.00 L 830.74 192.00 L 615.26 192.00 Z
+             M 723.00 66.90 L 784.00 192.00 L 662.00 192.00 Z"
+          fill="url(#navy)" fill-rule="evenodd"/>
+  </g>
+  <g id="N" transform="translate(-6.04 0)">
+    <path d="M 859.00 19.00 H 901.00 V 192.00 H 859.00 Z" fill="url(#navyN)"/>
+    <path d="M 989.00 19.00 H 1031.00 V 192.00 H 989.00 Z" fill="url(#navyN)"/>
+    <polygon points="862.00,19.00 911.00,19.00 1028.00,192.00 979.00,192.00" fill="url(#navyN)"/>
+  </g>
+  <g id="E" transform="translate(-5.04 0)">
+    <path d="M 1060.00 19 H 1223.00 V 59 H 1102.00
+             V 86 H 1203.00 V 126 H 1102.00
+             V 152 H 1223.00 V 192 H 1060.00 Z" fill="url(#navy)"/>
+  </g>
+</svg>
