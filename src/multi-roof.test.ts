@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import { rectangleFromThree, metricRect, worldToImage, imageToWorld, containsRect } from './drawing-geometry';
-import { newRoof, toWorld, toLocal, worldArray, roofRect, totals, worldObstacle } from './roof-project';
+import { newRoof, toWorld, toLocal, worldArray, roofRect, totals, worldObstacle, projectBounds } from './roof-project';
 import { geometry, footprint, corners, detect } from './domain';
 import { autoLayout } from './auto-layout';
 import { shadowZones } from './shadow-zones';
@@ -8,6 +8,9 @@ import { requireSinglePage } from './pdf-policy';
 import { parseWorkspace, type WorkspaceFile } from './workspace-file';
 import type { BaseImage } from './base-image';
 import {catalogFromModules} from './module-library';
+it('returns a zero-size bounds rectangle when there are no roofs yet',()=>{
+ expect(projectBounds([])).toEqual({x:0,z:0,width:0,depth:0});
+});
 it('constructs a rotated rectangle from an edge and perpendicular depth in either drawing direction',()=>{
  const a={x:10,z:20},b={x:40,z:60},c={x:2,z:26};const r=rectangleFromThree(a,b,c)!;
  expect(r.width).toBe(50);expect(r.depth).toBeCloseTo(10);expect(corners(r).some(p=>Math.hypot(p.x-a.x,p.z-a.z)<1e-6)).toBe(true);

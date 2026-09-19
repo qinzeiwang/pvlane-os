@@ -25,7 +25,12 @@ export function worldObstacle(o:Obstacle,r:RoofDesign):Obstacle {
  const bottom=Math.min(...heights),top=Math.max(...heights);
  return {...o,baseHeight:bottom,height:o.height+top-bottom,...toWorld(o,r),id:`${r.id}/${o.id}`,yaw:o.yaw+r.yaw};
 }
-export function projectBounds(roofs:RoofDesign[]) {const p=roofs.flatMap(r=>corners(roofRect(r)));const xs=p.map(p=>p.x),zs=p.map(p=>p.z);return {x:(Math.min(...xs)+Math.max(...xs))/2,z:(Math.min(...zs)+Math.max(...zs))/2,width:Math.max(...xs)-Math.min(...xs),depth:Math.max(...zs)-Math.min(...zs)};}
+export function projectBounds(roofs:RoofDesign[]) {
+  if (!roofs.length) return { x: 0, z: 0, width: 0, depth: 0 };
+  const p = roofs.flatMap(r => corners(roofRect(r)));
+  const xs = p.map(p => p.x), zs = p.map(p => p.z);
+  return { x: (Math.min(...xs) + Math.max(...xs)) / 2, z: (Math.min(...zs) + Math.max(...zs)) / 2, width: Math.max(...xs) - Math.min(...xs), depth: Math.max(...zs) - Math.min(...zs) };
+}
 export function totals(roofs:RoofDesign[]) {return roofs.reduce((s,r)=>{for(const a of r.arrays){s.count+=a.rows*a.columns;s.capacity+=a.rows*a.columns*(a.module??defaultModule).power/1000;}return s;},{count:0,capacity:0});}
 export function useRoofProject(){
  const [roofs,setRoofs]=useState<RoofDesign[]>(()=>[newRoof()]);
