@@ -1,12 +1,13 @@
 import { corners, type Obstacle, type Rect, type Point } from './domain';
 import { winterSun } from './solar';
-export type ShadowZone = { id: string; name: string; points: Point[]; elevation?:number };
+export type ShadowZone = { id: string; name: string; points: Point[]; elevation?:number; topOnly?:boolean };
 export function parapets(roof: { width: number; depth: number }, height: number): Obstacle[] {
+  if(height<=0)return [];
   return [
-    [0, -roof.depth / 2 - .1, roof.width + .4, .2],
-    [0, roof.depth / 2 + .1, roof.width + .4, .2],
-    [-roof.width / 2 - .1, 0, .2, roof.depth],
-    [roof.width / 2 + .1, 0, .2, roof.depth],
+    [0, -roof.depth / 2 + .1, roof.width, .2],
+    [0, roof.depth / 2 - .1, roof.width, .2],
+    [-roof.width / 2 + .1, 0, .2, roof.depth - .4],
+    [roof.width / 2 - .1, 0, .2, roof.depth - .4],
   ].map(([x, z, width, depth], i) => ({ id: `wall-${i}`, name: ['北女儿墙','南女儿墙','西女儿墙','东女儿墙'][i], x, z, width, depth, yaw: 0, height }));
 }
 const EPS = 1e-8;
@@ -28,7 +29,7 @@ export function insideConvex(p: Point, points: Point[]) {
   return points.length >= 3 && points.every((a, i) => cross(a, points[(i + 1) % points.length], p) >= -EPS);
 }
 // Sutherland-Hodgman clipping; clipping a convex hull retains convexity.
-function clipRoof(points: Point[], roof: { width: number; depth: number }) {
+export function clipRoof(points: Point[], roof: { width: number; depth: number }) {
   for (const [axis, sign, bound] of [['x', 1, roof.width / 2], ['x', -1, roof.width / 2], ['z', 1, roof.depth / 2], ['z', -1, roof.depth / 2]] as const) {
     const result: Point[] = [];
     points.forEach((a, i) => {

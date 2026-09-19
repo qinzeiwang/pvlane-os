@@ -44,6 +44,7 @@ import { useRoofProject, newRoof, roofFromPrevious, type RoofDesign, roofRect, t
 import { loadDrawing } from './drawing-import';
 import { Icon } from "./workbench-ui";
 import { shadowZones, hitsShadow } from "./shadow-zones";
+import { pitchedShadowZones } from "./pitched-shadow-zones";
 import { recommendedGap } from "./solar";
 import { autoLayout, type LayoutOptions } from "./auto-layout";
 import { AutoPanel, AdvancedLayoutPanel } from "./auto-panel";
@@ -67,6 +68,16 @@ function App() {
   const [importing,setImporting]=useState(false);
   const [advancedOpen,setAdvancedOpen]=useState(false);
   const [displayOpen,setDisplayOpen]=useState(false);
+  useEffect(()=>{
+    const dismissOutside=(event:Event)=>{
+      const target=event.target;if(!(target instanceof Element))return;
+      document.querySelectorAll<HTMLDetailsElement>('.project-menu[open], .region-menu[open]').forEach(menu=>{if(!menu.contains(target))menu.open=false;});
+      if(!target.closest('.display-popover, [data-display-trigger]'))setDisplayOpen(false);
+    };
+    const dismissOnEscape=(event:KeyboardEvent)=>{if(event.key!=='Escape')return;document.querySelectorAll<HTMLDetailsElement>('.project-menu[open], .region-menu[open]').forEach(menu=>{menu.open=false;});setDisplayOpen(false);};
+    document.addEventListener('pointerdown',dismissOutside,true);document.addEventListener('click',dismissOutside,true);document.addEventListener('keydown',dismissOnEscape);
+    return()=>{document.removeEventListener('pointerdown',dismissOutside,true);document.removeEventListener('click',dismissOutside,true);document.removeEventListener('keydown',dismissOnEscape);};
+  },[]);
   const [saving,setSaving]=useState(false),[newProjectOpen,setNewProjectOpen]=useState(false);
   const [imageOverlays,setImageOverlays]=useState<ImageOverlay[]>([]);
   const [overlayOpen,setOverlayOpen]=useState(false),[selectedOverlay,setSelectedOverlay]=useState<string|null>(null);
@@ -263,8 +274,8 @@ function App() {
   const bounds=projectBounds(roofs);
   const worldArrays=(hasSelection?roofs:[]).flatMap(r=>r.arrays.map(a=>worldArray(a,r)));
   const worldObjects=(hasSelection?roofs:[]).flatMap(r=>r.obstacles.map(o=>worldObstacle(o,r)));
-  const worldZones=(hasSelection?roofs:[]).flatMap(r=>(r.pitch?[]:shadowZones(r.roof,r.obstacles,r.wallHeight,geographicYaw(r))).map(z=>({...z,id:`${r.id}/${z.id}`,elevation:(r.flatHeight??3.5)-3.5,points:z.points.map(p=>toWorld(p,r))})));
-  const worldIssues=roofs.flatMap(r=>{const localZones=r.pitch?[]:shadowZones(r.roof,r.obstacles,r.wallHeight,geographicYaw(r));const localIssues=[...detect(r.arrays,r.obstacles,r.roof),...r.arrays.flatMap(a=>localZones.filter(z=>hitsShadow(footprint(a),z)).map(z=>({kind:'obstacle' as const,ids:[a.id],text:z.name})))];return localIssues.map(i=>({...i,ids:i.ids.map(id=>`${r.id}/${id}`)}));});
+  const worldZones=(hasSelection?roofs:[]).flatMap(r=>(r.pitch?pitchedShadowZones(r.roof,r.obstacles,r.pitch,geographicYaw(r)).map(z=>({...z,topOnly:true})):shadowZones(r.roof,r.obstacles,r.wallHeight,geographicYaw(r))).map(z=>({...z,id:`${r.id}/${z.id}`,elevation:(r.flatHeight??3.5)-3.5,points:z.points.map(p=>toWorld(p,r))})));
+  const worldIssues=roofs.flatMap(r=>{const localZones=r.pitch?pitchedShadowZones(r.roof,r.obstacles,r.pitch,geographicYaw(r)):shadowZones(r.roof,r.obstacles,r.wallHeight,geographicYaw(r));const localIssues=[...detect(r.arrays,r.obstacles,r.roof),...r.arrays.flatMap(a=>localZones.filter(z=>hitsShadow(footprint(a),z)).map(z=>({kind:'obstacle' as const,ids:[a.id],text:z.name})))];return localIssues.map(i=>({...i,ids:i.ids.map(id=>`${r.id}/${id}`)}));});
   const View = Three;
   if(entry!=='workspace')return <ProjectStart creating={entry==='new'} busy={importing} message={fileMessage} onNew={()=>{setFileMessage('');setEntry('new');}} onBack={()=>setEntry('welcome')} onOpen={openFile} onCreate={(mode,file)=>{setFileMessage('');if(mode==='drawing'){void loadImage(file);}else{setHistoryEpoch(n=>n+1);setEntry('workspace');}}}/>;
   return (
@@ -457,7 +468,7 @@ function App() {
           >
             3D
           </button>
-        </nav><button className="icon-button" title="回到全景" aria-label="回到全景" disabled={running} onClick={() => setReset(n => n + 1)}><Icon name="frame" /></button><button className={`icon-button ${displayOpen?'active':''}`} title="显示设置" aria-label="显示设置" aria-expanded={displayOpen} onClick={()=>{setDisplayOpen(v=>!v);setOverlayOpen(false);}}><Icon name="layers"/></button><button className={"icon-button"+(overlayOpen?" active":"")} aria-label="叠加图片" title="叠加图片" onClick={()=>{setOverlayOpen(v=>!v);setDisplayOpen(false);setMode("top");setStress(false);setSelectedOverlay(id=>id??imageOverlays[0]?.id??null);}}><Icon name="image"/></button></div>
+        </nav><button className="icon-button" title="回到全景" aria-label="回到全景" disabled={running} onClick={() => setReset(n => n + 1)}><Icon name="frame" /></button><button data-display-trigger className={`icon-button ${displayOpen?'active':''}`} title="显示设置" aria-label="显示设置" aria-expanded={displayOpen} onClick={()=>{setDisplayOpen(v=>!v);setOverlayOpen(false);}}><Icon name="layers"/></button><button className={"icon-button"+(overlayOpen?" active":"")} aria-label="叠加图片" title="叠加图片" onClick={()=>{setOverlayOpen(v=>!v);setDisplayOpen(false);setMode("top");setStress(false);setSelectedOverlay(id=>id??imageOverlays[0]?.id??null);}}><Icon name="image"/></button></div>
           {overlayOpen&&<ImageOverlayPanel items={imageOverlays} selected={selectedOverlay} center={hasSelection?{x:active.x,z:active.z}:{x:0,z:0}} initialWidth={hasSelection?active.roof.width:baseImage?.metersPerPixel?baseImage.width*baseImage.metersPerPixel*.35:30} onChange={setImageOverlays} onSelect={setSelectedOverlay} onClose={()=>setOverlayOpen(false)}/>}
           {displayOpen&&<DisplayPopover solarHour={solarHour} showShadows={showShadows} onSolarHour={setSolarHour} onShowShadows={setShowShadows} backgroundColor={backgroundColor} groundColor={groundColor} realistic={realistic} guides={guides} stress={stress} running={running} progress={progress} report={report} count={total.count} onBackground={setBackgroundColor} onGround={setGroundColor} onRealistic={value=>{setRealistic(value);setRun(0);setProgress('');setReport(null);}} onGuides={setGuides} onStartTest={()=>{setMode('3d');setStress(true);setGuides(false);setReport(null);setProgress('第 1/3 轮预热 · 5 秒');setRun(n=>n+1);}} onStopTest={()=>{setRun(0);setProgress('已停止');}} onResetTest={()=>{setStress(false);setRun(0);setProgress('');setReset(n=>n+1);}} onClose={()=>setDisplayOpen(false)}/>}
           {mode === "top" && <Compass angle={baseImage?.northAngle??0} onClick={()=>setGlobalOpen(true)}/>}

@@ -75,13 +75,13 @@ function Lines({
     </Tag>
   );
 }
-function ShadowPolygon({ points, elevation=0 }: { elevation?:number; points: { x: number; z: number }[] }) {
+function ShadowPolygon({ points, elevation=0, overlay=false }: { elevation?:number; overlay?:boolean; points: { x: number; z: number }[] }) {
   const vertices = useMemo(() => {
     const coords: number[] = [];
     for (let i = 1; i < points.length - 1; i++) for (const p of [points[0], points[i], points[i + 1]]) coords.push(p.x, elevation+0.025, p.z);
     return new Float32Array(coords);
   }, [points,elevation]);
-  return <group><mesh><bufferGeometry><bufferAttribute attach="attributes-position" args={[vertices, 3]} /></bufferGeometry><meshBasicMaterial color="#c96048" transparent opacity={0.22} depthWrite={false} side={THREE.DoubleSide} /></mesh><Lines points={[...points, points[0]].flatMap(p => [p.x, elevation+.03, p.z])} color="#b8614d" /></group>;
+  return <group><mesh renderOrder={overlay?9000:0}><bufferGeometry><bufferAttribute attach="attributes-position" args={[vertices, 3]} /></bufferGeometry><meshBasicMaterial color="#c96048" transparent opacity={0.22} depthTest={!overlay} depthWrite={false} side={THREE.DoubleSide} /></mesh><Lines points={[...points, points[0]].flatMap(p => [p.x, elevation+.03, p.z])} color="#b8614d" /></group>;
 }
 function makeTopCells(){
  const canvas=document.createElement('canvas');canvas.width=512;canvas.height=1024;
@@ -437,7 +437,7 @@ function Scene(props: ViewProps) {
       )}
       {!stress&&props.mode==='top'&&<>{sites.filter(r=>r.id===props.selectedSiteId).map(r=><group key={'selected'+r.id} position={[r.x,0,r.z]} rotation={[0,r.yaw,0]}><Lines points={outline(r.width,r.depth,.12)} color="#008ee6"/><Lines points={outline(r.width+.08,r.depth+.08,.12)} color="#008ee6"/></group>)}{obstacles.filter(o=>o.id===props.selectedObjectId).map(o=><group key={'selected'+o.id} position={[o.x,0,o.z]} rotation={[0,o.yaw,0]}><mesh position={[0,Math.max(.35,o.height)+.05,0]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[o.width,o.depth]}/><meshBasicMaterial color="#00a5ff" transparent opacity={.35} depthTest={false}/></mesh><Lines points={outline(o.width,o.depth,Math.max(.35,o.height)+.07)} color="#007dcc"/>{props.editingObject&&<><DimensionLabel text={o.width.toFixed(2)+' m'} position={[0,Math.max(.35,o.height)+.15,-o.depth/2-view.current.span/size.height*20]} unit={view.current.span/size.height}/><DimensionLabel text={o.depth.toFixed(2)+' m'} position={[o.width/2+view.current.span/size.height*52,Math.max(.35,o.height)+.15,0]} unit={view.current.span/size.height}/></>}{props.editingObject&&corners({...o,x:0,z:0,yaw:0}).map((p,i)=><mesh key={i} position={[p.x,Math.max(.35,o.height)+.1,p.z]} rotation={[-Math.PI/2,0,0]}><circleGeometry args={[view.current.span/size.height*6,16]}/><meshBasicMaterial color="#ffffff" depthTest={false}/></mesh>)}</group>)}</>}
       {!stress && props.mode === "top" && props.baseImage?.frame && props.baseImage.metersPerPixel && <Suspense fallback={null}><BaseImagePlane base={props.baseImage}/>{props.baseImage.pdfSource&&<PdfPatchPlane base={props.baseImage} view={pdfView} pixels={size.width}/>}</Suspense>}
-      {!stress && props.showShadows && props.shadowZones?.map(zone => <ShadowPolygon key={zone.id} points={zone.points} elevation={props.mode==='top'?0:zone.elevation??0} />)}
+      {!stress && props.showShadows && props.shadowZones?.filter(zone=>props.mode==='top'||!zone.topOnly).map(zone => <ShadowPolygon key={zone.id} points={zone.points} elevation={props.mode==='top'?0:zone.elevation??0} overlay={props.mode==='top'} />)}
       {showGuides && (
         <>
           {sites.map(r=><group key={r.id} position={[r.x,0,r.z]} rotation={[0,r.yaw,0]}>{props.mode==='top'&&props.baseImage&&<mesh position={[0,.035,0]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[r.width,r.depth]}/><meshBasicMaterial color="#ffffff" transparent opacity={.58} depthWrite={false} toneMapped={false}/></mesh>}<Lines points={outline(r.width,r.depth,.025)} color="#2c7898"/>{r.pitch&&(()=>{const p=r.pitch,t=p.kind==='gable'?0:p.high*(p.axis==='z'?r.depth:r.width)/2;return <Lines points={p.axis==='z'?[-r.width/2,.04,t,r.width/2,.04,t]:[t,.04,-r.depth/2,t,.04,r.depth/2]} color="#e68a29"/>;})()}</group>)}
