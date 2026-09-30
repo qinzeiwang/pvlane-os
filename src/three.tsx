@@ -1,3 +1,5 @@
+import {FootprintGeometry,footprintLines} from './footprint-mesh';
+import {segmentDistance} from './polygon';
 import {pitchSegments} from './roof-direction';
 import { PitchedMesh } from './pitched-mesh';
 import { Canvas, useThree, useFrame, useLoader } from "@react-three/fiber";
@@ -109,7 +111,7 @@ function TopArray({a,selected,conflict,map}:{a:PVArray;selected:boolean;conflict
   }
   return {fill:new Float32Array(fill),uv:new Float32Array(uv),edges};
  },[a,g]);
- return <group position={[a.x,0,a.z]} rotation={[0,g.yaw,0]}>
+ return <group position={[a.x,a.hostObstacleId?(a.elevation??0)+.3:0,a.z]} rotation={[0,g.yaw,0]}>
   <mesh userData={{arrayId:a.id}}><bufferGeometry><bufferAttribute attach="attributes-position" args={[data.fill,3]}/><bufferAttribute attach="attributes-uv" args={[data.uv,2]}/></bufferGeometry><meshBasicMaterial map={map} color={conflict?'#bd6260':selected?'#b4d9dd':'#ffffff'} toneMapped={false}/></mesh>
   <Lines points={data.edges} segments color={conflict?'#f1c4bb':selected?'#718994':'#4b5a65'}/>
   <Lines points={outline(g.width,g.depth,.22)} color={conflict?'#bd322a':selected?'#efa343':'#87919a'}/>
@@ -174,7 +176,7 @@ function Scene(props: ViewProps) {
   const latest = useRef(props);
   latest.current = props;
   const { gl, size, set, scene, invalidate, get } = useThree();
-  useEffect(()=>{props.onCaptureReady?.(()=>{gl.render(scene,get().camera);return gl.domElement.toDataURL("image/png");});return()=>props.onCaptureReady?.(null);},[gl,scene,get,props.onCaptureReady]);
+  useEffect(()=>{props.onCaptureReady?.(()=>{const p=latest.current,q=p.visual?.quality??(p.visual?.realistic===false?'simple':'standard');if(p.mode==='3d'&&q!=='simple'&&!scene.getObjectByName('pvlane-realistic-ready')?.visible)throw new Error('三维材质正在加载，请稍后再预览报告');gl.render(scene,get().camera);return gl.domElement.toDataURL("image/png");});return()=>props.onCaptureReady?.(null);},[gl,scene,get,props.onCaptureReady]);
   const quality=props.visual?.quality??(props.visual?.realistic===false?'simple':'standard');
   const detailed = props.mode === "3d" && quality!=='simple';
   const stress = props.mode === "3d" && !!props.visual?.stress;
@@ -406,7 +408,7 @@ function Scene(props: ViewProps) {
             const marked=current.showPitchMarker&&current.sites?.find(r=>r.id===current.selectedSiteId&&(r.markerPitch||r.pitch));
             if(marked&&(marked.markerPitch||marked.pitch)){const p=local(marked);if(pitchSegments(marked.width,marked.depth,(marked.markerPitch??marked.pitch)!).some(([x,z,bx,bz])=>{const dx=bx-x,dz=bz-z,t=Math.max(0,Math.min(1,((p.x-x)*dx+(p.z-z)*dz)/(dx*dx+dz*dz)));return Math.hypot(p.x-x-t*dx,p.z-z-t*dz)<tol;}))return '@p/'+marked.id;}
             const o=[...(current.obstacles??[])].reverse().find(o=>{const p=local(o);return Math.abs(p.x)<=o.width/2&&Math.abs(p.z)<=o.depth/2;});if(o)return '@o/'+o.id;
-            const site=current.sites?.find(r=>{const p=local(r);return Math.abs(p.x)<=r.width/2+tol&&Math.abs(p.z)<=r.depth/2+tol&&(Math.abs(Math.abs(p.x)-r.width/2)<tol||Math.abs(Math.abs(p.z)-r.depth/2)<tol);});if(site)return '@s/'+site.id;
+            const site=current.sites?.find(r=>{const p=local(r);if(r.outline)return r.outline.some((a,i)=>segmentDistance(p,a,r.outline![(i+1)%r.outline!.length])<tol);return Math.abs(p.x)<=r.width/2+tol&&Math.abs(p.z)<=r.depth/2+tol&&(Math.abs(Math.abs(p.x)-r.width/2)<tol||Math.abs(Math.abs(p.z)-r.depth/2)<tol);});if(site)return '@s/'+site.id;
           }
         }
         return (
@@ -438,25 +440,25 @@ function Scene(props: ViewProps) {
         fit();
       },
     });
-  }, [active, gl, scene, props.reset, stress]);
+  }, [active, gl, scene, props.reset, props.navigationMode, stress]);
   return (
     <>
       {detailed ? (
-        <RealisticScene quality={quality} northAngle={props.baseImage?.northAngle??0} sites={sites} focus={props.focus} backgroundColor={props.visual?.backgroundColor} groundColor={props.visual?.groundColor} arrays={renderArrays} stress={stress} roof={roof} obstacles={obstacles} solarHour={props.solarHour} wallHeight={props.wallHeight} />
+        <Suspense fallback={null}><RealisticScene sunSettings={props.visual?.sunSettings} quality={quality} northAngle={props.baseImage?.northAngle??0} sites={sites} focus={props.focus} backgroundColor={props.visual?.backgroundColor} groundColor={props.visual?.groundColor} arrays={renderArrays} stress={stress} roof={roof} obstacles={obstacles} solarHour={props.solarHour} wallHeight={props.wallHeight} /></Suspense>
       ) : (
         <>
           <color attach="background" args={[props.visual?.backgroundColor ?? "#edf2f5"]} />
           <ambientLight intensity={1.4} />
           <directionalLight position={[-10, 25, -15]} intensity={2} />
-          {sites.map(r=>r.pitch&&props.mode!=="top"?<group key={r.id} position={[r.x,0,r.z]} rotation={[0,r.yaw,0]}><PitchedMesh site={r}/></group>:<mesh key={r.id} position={[r.x,props.mode==='top'?-.15:(r.flatHeight??3.5)/2-3.5,r.z]} rotation={[0,r.yaw,0]}><boxGeometry args={[r.width,props.mode==='top'?.3:(r.flatHeight??3.5),r.depth]}/><meshBasicMaterial color="#d4dde3"/></mesh>)}
+          {sites.map(r=>r.pitch&&props.mode!=="top"?<group key={r.id} position={[r.x,0,r.z]} rotation={[0,r.yaw,0]}><PitchedMesh site={r}/></group>:<mesh key={r.id} position={[r.x,props.mode==='top'?-.15:(r.flatHeight??3.5)/2-3.5,r.z]} rotation={[0,r.yaw,0]}><FootprintGeometry roof={r} height={props.mode==='top'?.3:(r.flatHeight??3.5)}/><meshBasicMaterial color="#d4dde3"/></mesh>)}
         </>
       )}
-      {!stress&&props.mode==='top'&&<>{sites.filter(r=>r.id===props.selectedSiteId).map(r=><group key={'selected'+r.id} position={[r.x,0,r.z]} rotation={[0,r.yaw,0]}><Lines points={outline(r.width,r.depth,.12)} color="#008ee6"/><Lines points={outline(r.width+.08,r.depth+.08,.12)} color="#008ee6"/></group>)}{obstacles.filter(o=>o.id===props.selectedObjectId).map(o=><group key={'selected'+o.id} position={[o.x,0,o.z]} rotation={[0,o.yaw,0]}><mesh position={[0,Math.max(.35,o.height)+.05,0]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[o.width,o.depth]}/><meshBasicMaterial color="#00a5ff" transparent opacity={.35} depthTest={false}/></mesh><Lines points={outline(o.width,o.depth,Math.max(.35,o.height)+.07)} color="#007dcc"/>{props.editingObject&&<><DimensionLabel text={o.width.toFixed(2)+' m'} position={[0,Math.max(.35,o.height)+.15,-o.depth/2-view.current.span/size.height*20]} unit={view.current.span/size.height}/><DimensionLabel text={o.depth.toFixed(2)+' m'} position={[o.width/2+view.current.span/size.height*52,Math.max(.35,o.height)+.15,0]} unit={view.current.span/size.height}/></>}{props.editingObject&&corners({...o,x:0,z:0,yaw:0}).map((p,i)=><mesh key={i} position={[p.x,Math.max(.35,o.height)+.1,p.z]} rotation={[-Math.PI/2,0,0]}><circleGeometry args={[view.current.span/size.height*6,16]}/><meshBasicMaterial color="#ffffff" depthTest={false}/></mesh>)}</group>)}</>}
+      {!stress&&props.mode==='top'&&<>{sites.filter(r=>r.id===props.selectedSiteId).map(r=><group key={'selected'+r.id} position={[r.x,0,r.z]} rotation={[0,r.yaw,0]}><Lines points={footprintLines(r,.12)} color="#008ee6"/><Lines points={footprintLines(r,.12)} color="#008ee6"/></group>)}{obstacles.filter(o=>o.id===props.selectedObjectId).map(o=><group key={'selected'+o.id} position={[o.x,0,o.z]} rotation={[0,o.yaw,0]}><mesh position={[0,Math.max(.35,o.height)+.05,0]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[o.width,o.depth]}/><meshBasicMaterial color="#00a5ff" transparent opacity={.35} depthTest={false}/></mesh><Lines points={outline(o.width,o.depth,Math.max(.35,o.height)+.07)} color="#007dcc"/>{props.editingObject&&<><DimensionLabel text={o.width.toFixed(2)+' m'} position={[0,Math.max(.35,o.height)+.15,-o.depth/2-view.current.span/size.height*20]} unit={view.current.span/size.height}/><DimensionLabel text={o.depth.toFixed(2)+' m'} position={[o.width/2+view.current.span/size.height*52,Math.max(.35,o.height)+.15,0]} unit={view.current.span/size.height}/></>}{props.editingObject&&corners({...o,x:0,z:0,yaw:0}).map((p,i)=><mesh key={i} position={[p.x,Math.max(.35,o.height)+.1,p.z]} rotation={[-Math.PI/2,0,0]}><circleGeometry args={[view.current.span/size.height*6,16]}/><meshBasicMaterial color="#ffffff" depthTest={false}/></mesh>)}</group>)}</>}
       {!stress && props.mode === "top" && !props.baseImage?.blank && props.baseImage?.frame && props.baseImage.metersPerPixel && <Suspense fallback={null}><BaseImagePlane base={props.baseImage}/>{props.baseImage.pdfSource&&<PdfPatchPlane base={props.baseImage} view={pdfView} pixels={size.width}/>}</Suspense>}
       {!stress && props.showShadows && props.shadowZones?.filter(zone=>props.mode==='top'||!zone.topOnly).map(zone => <ShadowPolygon key={zone.id} points={zone.points} elevation={props.mode==='top'?0:zone.elevation??0} overlay={props.mode==='top'} />)}
       {showGuides && (
         <>
-          {sites.map(r=><group key={r.id} position={[r.x,0,r.z]} rotation={[0,r.yaw,0]}>{props.mode==='top'&&props.baseImage&&<mesh position={[0,.035,0]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[r.width,r.depth]}/><meshBasicMaterial color="#ffffff" transparent opacity={.58} depthWrite={false} toneMapped={false}/></mesh>}<Lines points={outline(r.width,r.depth,.025)} color="#2c7898"/>{r.pitch&&(()=>{const p=r.pitch,t=p.kind==='gable'?0:p.high*(p.axis==='z'?r.depth:r.width)/2;return <Lines points={p.axis==='z'?[-r.width/2,.04,t,r.width/2,.04,t]:[t,.04,-r.depth/2,t,.04,r.depth/2]} color="#e68a29"/>;})()}</group>)}
+          {sites.map(r=><group key={r.id} position={[r.x,0,r.z]} rotation={[0,r.yaw,0]}>{props.mode==='top'&&props.baseImage&&<mesh position={[0,.035,0]} rotation={[-Math.PI/2,0,0]}><FootprintGeometry roof={r} plane/><meshBasicMaterial color="#ffffff" transparent opacity={.58} depthWrite={false} toneMapped={false}/></mesh>}<Lines points={footprintLines(r,.025)} color="#2c7898"/>{r.pitch&&(()=>{const p=r.pitch,t=p.kind==='gable'?0:p.high*(p.axis==='z'?r.depth:r.width)/2;return <Lines points={p.axis==='z'?[-r.width/2,.04,t,r.width/2,.04,t]:[t,.04,-r.depth/2,t,.04,r.depth/2]} color="#e68a29"/>;})()}</group>)}
         </>
       )}
       {!detailed &&

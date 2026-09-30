@@ -22,6 +22,7 @@ export type PerformanceReport = {
 };
 export type RenderQuality = 'simple' | 'standard' | 'fine';
 export type VisualOptions = {
+  sunSettings?:import("./sun-position").SunSettings;
   quality?: RenderQuality;
   backgroundColor?: string;
   groundColor?: string;

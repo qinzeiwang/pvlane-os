@@ -1,16 +1,17 @@
 import {corners,type Obstacle} from './domain';
 import {roofHeight,roofGradient,type RoofPitch} from './pitched-roof';
 import {clipRoof,convexHull,type ShadowZone} from './shadow-zones';
-import {winterSun} from './solar';
+import {winterRays,type SunRay} from './solar';
 // Winter 9–15 true-solar-time envelope, sampled every 15 minutes.
 // Top faces are horizontal; rays intersect the first valid roof half-plane.
-export function pitchedShadowZones(roof:{width:number;depth:number},objects:Obstacle[],pitch:RoofPitch,yaw=0):ShadowZone[]{
+export function pitchedShadowZones(roof:{width:number;depth:number},objects:Obstacle[],pitch:RoofPitch,yaw=0,rays:readonly SunRay[]=winterRays()):ShadowZone[]{
+ const daylight=rays.filter(s=>s.y>1e-6);if(!daylight.length)return [];
  return objects.filter(o=>o.kind!=='keepout'&&o.height>0).flatMap(o=>{
   const base=corners(o),axis=pitch.axis;
   const spansRidge=pitch.kind==='gable'&&Math.min(...base.map(p=>axis==='x'?p.x:p.z))<=0&&Math.max(...base.map(p=>axis==='x'?p.x:p.z))>=0;
   const top=Math.max(...base.map(p=>roofHeight(roof,pitch,p.x,p.z)),...(spansRidge?[roofHeight(roof,pitch,0,0)]:[]))+o.height;
-  const projected=Array.from({length:25},(_,i)=>9+i/4).flatMap(hour=>{
-   const s=winterSun(hour),c=Math.cos(yaw),sn=Math.sin(yaw),sun={x:s.x*c-s.z*sn,y:s.y,z:s.x*sn+s.z*c};
+  const projected=daylight.flatMap(s=>{
+   const c=Math.cos(yaw),sn=Math.sin(yaw),sun={x:s.x*c-s.z*sn,y:s.y,z:s.x*sn+s.z*c};
    return base.map(p=>{
     const candidates=(pitch.kind==='gable'?[-1,1]:[1]).flatMap(side=>{
      const g=roofGradient(pitch,axis==='x'?side:0,axis==='z'?side:0);
@@ -24,6 +25,6 @@ export function pitchedShadowZones(roof:{width:number;depth:number},objects:Obst
    });
   });
   const points=clipRoof(convexHull([...base,...projected]),roof);
-  return points.length<3?[]:[{id:`shadow-${o.id}`,name:`${o.name}坡面时段阴影包络`,points}];
+  return points.length<3?[]:[{id:`shadow-${o.id}`,name:`${o.name}${rays.length===1?"坡面当前时刻阴影":"坡面冬至时段阴影包络"}`,points}];
  });
 }

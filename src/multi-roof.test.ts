@@ -52,7 +52,7 @@ it('preserves independent module specifications and sums actual placed module ca
 });
 it('round trips multiple roofs and rejects invalid world coordinates, duplicate roofs, and PDF sources',()=>{
  const r=newRoof();const p:WorkspaceFile={version:3,name:'test',activeId:r.id,roofs:[r,{...newRoof('2'),x:50,yaw:.2,moduleSpec:{...r.moduleSpec,power:650}}],solarHour:9,backgroundColor:'#dce5ec',groundColor:'#c7cccb'};
- const loaded=parseWorkspace(JSON.stringify(p));const moduleCatalog=catalogFromModules(p.roofs.map(r=>r.moduleSpec));expect(loaded).toEqual({...p,roofs:p.roofs.map((r,i)=>({...r,moduleId:moduleCatalog[i].id})),moduleCatalog,globalEdge:r.layoutOptions.edge});
+ const loaded=parseWorkspace(JSON.stringify(p));const moduleCatalog=catalogFromModules(p.roofs.map(r=>r.moduleSpec));expect(loaded).toEqual({...p,sunSettings:loaded.sunSettings,roofs:p.roofs.map((r,i)=>({...r,northAngle:undefined,moduleId:moduleCatalog[i].id,layoutOptions:{...r.layoutOptions,shadowLatitude:39.75,shadowIgnored:true}})),moduleCatalog,globalEdge:r.layoutOptions.edge});expect(loaded.sunSettings?.locationMode).toBe("unresolved");
  expect(parseWorkspace(JSON.stringify({...p,globalEdge:1.2})).globalEdge).toBe(1.2);
  expect(()=>parseWorkspace(JSON.stringify({...p,globalEdge:-1}))).toThrow();expect(()=>parseWorkspace(JSON.stringify({...p,roofs:[r,r]}))).toThrow();
  expect(()=>parseWorkspace(JSON.stringify({...p,roofs:[{...r,yaw:'1'}]}))).toThrow();

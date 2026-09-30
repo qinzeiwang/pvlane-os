@@ -57,6 +57,11 @@ Licensed under the MIT License
 
 ## MIT notices and license text
 
+The optional Windows desktop distribution includes Electron 44.4.3 (MIT).
+Its license and Chromium third-party notices are distributed alongside the executable as `LICENSE.electron.txt` and `LICENSES.chromium.html`.
+
+可选的 Windows 桌面版包含 Electron 44.4.3（MIT）。其许可证及 Chromium 第三方声明随程序分发，文件名为 `LICENSE.electron.txt` 和 `LICENSES.chromium.html`。
+
 MIT License
 
 `@react-three/fiber`: Paul Henschel (<https://github.com/drcmda>)
@@ -90,3 +95,17 @@ SOFTWARE.
 The full Apache License 2.0 text is available at
 <https://www.apache.org/licenses/LICENSE-2.0> and in the installed
 `@babylonjs/core` and `pdfjs-dist` package directories.
+
+## GeoNames city reference coordinates / 城市参考坐标
+
+`src/city-presets.json` contains 50 Chinese city reference points selected from GeoNames cities15000 (2026-09-30), with geonameId retained. Coordinates are rounded to four decimals and are not precise project locations. Data source: https://download.geonames.org/export/dump/ . License: CC BY 4.0, https://creativecommons.org/licenses/by/4.0/ . 中文名称按城市和省域整理。
+
+`test-fixtures/solar-spa-reference.json` contains numeric solar-position reference samples generated with pvlib spa_python (NREL SPA); it contains no pvlib implementation code.
+
+## Bundled rendering resources
+
+Concrete wall base colour, roughness and OpenGL normal: Poly Haven Concrete Wall 008, Charlotte Baglioni (photography), Dario Barresi (processing), CC0. Source: https://polyhaven.com/a/concrete_wall_008 . License: https://polyhaven.com/license .
+
+Fine-mode HDR environment: Poly Haven kloofendal_48d_partly_cloudy_puresky, CC0. Source: https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky . License: https://polyhaven.com/license .
+
+PV cells, roof metal and concrete ground are procedural illustrative materials. No product photograph is used.

@@ -17,7 +17,7 @@ export function AutoPanel({ options, onChange, disabled, advanced,northAngle=0 }
   };
   return <section className="auto-settings"><fieldset disabled={disabled}>
     <div className="compact-rules">
-      <div className="rule-row"><span>连排数量</span><div className="choice-segment" role="group" aria-label="同一斜面连排数">{[1,2,3].map(n=><button type="button" key={n} aria-pressed={(options.tableRows??1)===n} onClick={()=>onChange({...options,tableRows:n})}>{n} 排</button>)}</div></div>
+      <div className="rule-row"><span>连排数量</span><div className={'choice-segment'+(options.pitch?.kind==='gable'?' six-rows':'')} role="group" aria-label="同一斜面连排数">{(options.pitch?.kind==='gable'?[1,2,3,4,5,6]:[1,2,3]).map(n=><button type="button" key={n} aria-pressed={(options.tableRows??1)===n} onClick={()=>onChange({...options,tableRows:n})}>{n} 排</button>)}</div></div>
       {!options.pitch&&numberField('tilt', '倾角 °', 60)}
       {options.pitch?orientation:<div className="rule-row"><span>组件朝向</span><button type="button" className="direction-control" aria-label="旋转组件朝向" title="每次旋转 90°，支持四个方向" onClick={()=>onChange({...options,direction:(q+1)%4,portrait:(q+1)%2===0})}><Icon name="module-direction" style={{transform:`rotate(${azimuth+northAngle}deg)`}}/><span>{formatOrientation(Math.round(azimuth))}</span></button></div>}
       {numberField('gap', '左右通道 m', 20)}

@@ -1,0 +1,869 @@
+{
+  "source": "pvlib spa_python (NREL SPA), geometric elevation, delta_t=69s, altitude=0m",
+  "cases": [
+    {
+      "name": "北京",
+      "settings": {
+        "latitude": 39.75,
+        "longitude": 116.03,
+        "utcOffset": 8,
+        "date": "2026-03-21",
+        "time": "09:00"
+      },
+      "elevation": 29.202089941253128,
+      "azimuth": 117.41994652957493
+    },
+    {
+      "name": "北京",
+      "settings": {
+        "latitude": 39.75,
+        "longitude": 116.03,
+        "utcOffset": 8,
+        "date": "2026-03-21",
+        "time": "12:00"
+      },
+      "elevation": 50.11602195391316,
+      "azimuth": 170.963873953428
+    },
+    {
+      "name": "北京",
+      "settings": {
+        "latitude": 39.75,
+        "longitude": 116.03,
+        "utcOffset": 8,
+        "date": "2026-03-21",
+        "time": "15:00"
+      },
+      "elevation": 36.763480224749095,
+      "azimuth": 232.1337023951254
+    },
+    {
+      "name": "北京",
+      "settings": {
+        "latitude": 39.75,
+        "longitude": 116.03,
+        "utcOffset": 8,
+        "date": "2026-03-21",
+        "time": "00:00"
+      },
+      "elevation": -49.87783278899346,
+      "azimuth": 350.9517443685338
+    },
+    {
+      "name": "北京",
+      "settings": {
+        "latitude": 39.75,
+        "longitude": 116.03,
+        "utcOffset": 8,
+        "date": "2026-06-21",
+        "time": "09:00"
+      },
+      "elevation": 45.51093644405059,
+      "azimuth": 96.22582338306484
+    },
+    {
+      "name": "北京",
+      "settings": {
+        "latitude": 39.75,
+        "longitude": 116.03,
+        "utcOffset": 8,
+        "date": "2026-06-21",
+        "time": "12:00"
+      },
+      "elevation": 73.26713753689893,
+      "azimuth": 165.8280095783075
+    },
+    {
+      "name": "北京",
+      "settings": {
+        "latitude": 39.75,
+        "longitude": 116.03,
+        "utcOffset": 8,
+        "date": "2026-06-21",
+        "time": "15:00"
+      },
+      "elevation": 52.18766347367925,
+      "azimuth": 256.8257180657859
+    },
+    {
+      "name": "北京",
+      "settings": {
+        "latitude": 39.75,
+        "longitude": 116.03,
+        "utcOffset": 8,
+        "date": "2026-06-21",
+        "time": "00:00"
+      },
+      "elevation": -26.683656300250764,
+      "azimuth": 355.5034280197955
+    },
+    {
+      "name": "北京",
+      "settings": {
+        "latitude": 39.75,
+        "longitude": 116.03,
+        "utcOffset": 8,
+        "date": "2026-12-21",
+        "time": "09:00"
+      },
+      "elevation": 12.34093458258437,
+      "azimuth": 135.35836989111067
+    },
+    {
+      "name": "北京",
+      "settings": {
+        "latitude": 39.75,
+        "longitude": 116.03,
+        "utcOffset": 8,
+        "date": "2026-12-21",
+        "time": "12:00"
+      },
+      "elevation": 26.730454498069477,
+      "azimuth": 176.46091726503323
+    },
+    {
+      "name": "北京",
+      "settings": {
+        "latitude": 39.75,
+        "longitude": 116.03,
+        "utcOffset": 8,
+        "date": "2026-12-21",
+        "time": "15:00"
+      },
+      "elevation": 15.880928409916576,
+      "azimuth": 219.2409694126867
+    },
+    {
+      "name": "北京",
+      "settings": {
+        "latitude": 39.75,
+        "longitude": 116.03,
+        "utcOffset": 8,
+        "date": "2026-12-21",
+        "time": "00:00"
+      },
+      "elevation": -73.43367310570596,
+      "azimuth": 349.0537262405496
+    },
+    {
+      "name": "广州",
+      "settings": {
+        "latitude": 23.13,
+        "longitude": 113.26,
+        "utcOffset": 8,
+        "date": "2026-03-21",
+        "time": "09:00"
+      },
+      "elevation": 33.1867135438883,
+      "azimuth": 105.99635833656373
+    },
+    {
+      "name": "广州",
+      "settings": {
+        "latitude": 23.13,
+        "longitude": 113.26,
+        "utcOffset": 8,
+        "date": "2026-03-21",
+        "time": "12:00"
+      },
+      "elevation": 65.6269176353244,
+      "azimuth": 158.8830475030029
+    },
+    {
+      "name": "广州",
+      "settings": {
+        "latitude": 23.13,
+        "longitude": 113.26,
+        "utcOffset": 8,
+        "date": "2026-03-21",
+        "time": "15:00"
+      },
+      "elevation": 47.853789700185736,
+      "azimuth": 242.32627208267428
+    },
+    {
+      "name": "广州",
+      "settings": {
+        "latitude": 23.13,
+        "longitude": 113.26,
+        "utcOffset": 8,
+        "date": "2026-03-21",
+        "time": "00:00"
+      },
+      "elevation": -65.3915379707836,
+      "azimuth": 338.98928908353736
+    },
+    {
+      "name": "广州",
+      "settings": {
+        "latitude": 23.13,
+        "longitude": 113.26,
+        "utcOffset": 8,
+        "date": "2026-06-21",
+        "time": "09:00"
+      },
+      "elevation": 42.35431116068541,
+      "azimuth": 78.70554414207731
+    },
+    {
+      "name": "广州",
+      "settings": {
+        "latitude": 23.13,
+        "longitude": 113.26,
+        "utcOffset": 8,
+        "date": "2026-06-21",
+        "time": "12:00"
+      },
+      "elevation": 83.40152872714087,
+      "azimuth": 85.90960519170335
+    },
+    {
+      "name": "广州",
+      "settings": {
+        "latitude": 23.13,
+        "longitude": 113.26,
+        "utcOffset": 8,
+        "date": "2026-06-21",
+        "time": "15:00"
+      },
+      "elevation": 55.36241777347405,
+      "azimuth": 278.2005242096301
+    },
+    {
+      "name": "广州",
+      "settings": {
+        "latitude": 23.13,
+        "longitude": 113.26,
+        "utcOffset": 8,
+        "date": "2026-06-21",
+        "time": "00:00"
+      },
+      "elevation": -42.920052796007546,
+      "azimuth": 351.03018657449115
+    },
+    {
+      "name": "广州",
+      "settings": {
+        "latitude": 23.13,
+        "longitude": 113.26,
+        "utcOffset": 8,
+        "date": "2026-12-21",
+        "time": "09:00"
+      },
+      "elevation": 21.866591719134846,
+      "azimuth": 129.6018368301145
+    },
+    {
+      "name": "广州",
+      "settings": {
+        "latitude": 23.13,
+        "longitude": 113.26,
+        "utcOffset": 8,
+        "date": "2026-12-21",
+        "time": "12:00"
+      },
+      "elevation": 43.04264672267483,
+      "azimuth": 172.18869296858577
+    },
+    {
+      "name": "广州",
+      "settings": {
+        "latitude": 23.13,
+        "longitude": 113.26,
+        "utcOffset": 8,
+        "date": "2026-12-21",
+        "time": "15:00"
+      },
+      "elevation": 30.104604955170426,
+      "azimuth": 221.6155139711831
+    },
+    {
+      "name": "广州",
+      "settings": {
+        "latitude": 23.13,
+        "longitude": 113.26,
+        "utcOffset": 8,
+        "date": "2026-12-21",
+        "time": "00:00"
+      },
+      "elevation": -84.34059494485366,
+      "azimuth": 265.72940423610913
+    },
+    {
+      "name": "拉萨",
+      "settings": {
+        "latitude": 29.65,
+        "longitude": 91.11,
+        "utcOffset": 8,
+        "date": "2026-03-21",
+        "time": "09:00"
+      },
+      "elevation": 12.47056641104545,
+      "azimuth": 97.03315645012242
+    },
+    {
+      "name": "拉萨",
+      "settings": {
+        "latitude": 29.65,
+        "longitude": 91.11,
+        "utcOffset": 8,
+        "date": "2026-03-21",
+        "time": "12:00"
+      },
+      "elevation": 48.514727004373405,
+      "azimuth": 129.5802459670407
+    },
+    {
+      "name": "拉萨",
+      "settings": {
+        "latitude": 29.65,
+        "longitude": 91.11,
+        "utcOffset": 8,
+        "date": "2026-03-21",
+        "time": "15:00"
+      },
+      "elevation": 57.60663553210201,
+      "azimuth": 207.47474067545062
+    },
+    {
+      "name": "拉萨",
+      "settings": {
+        "latitude": 29.65,
+        "longitude": 91.11,
+        "utcOffset": 8,
+        "date": "2026-03-21",
+        "time": "00:00"
+      },
+      "elevation": -48.31590559394755,
+      "azimuth": 309.77938887999085
+    },
+    {
+      "name": "拉萨",
+      "settings": {
+        "latitude": 29.65,
+        "longitude": 91.11,
+        "utcOffset": 8,
+        "date": "2026-06-21",
+        "time": "09:00"
+      },
+      "elevation": 24.345628656621702,
+      "azimuth": 75.83197238784237
+    },
+    {
+      "name": "拉萨",
+      "settings": {
+        "latitude": 29.65,
+        "longitude": 91.11,
+        "utcOffset": 8,
+        "date": "2026-06-21",
+        "time": "12:00"
+      },
+      "elevation": 63.117373538282784,
+      "azimuth": 96.35442422898052
+    },
+    {
+      "name": "拉萨",
+      "settings": {
+        "latitude": 29.65,
+        "longitude": 91.11,
+        "utcOffset": 8,
+        "date": "2026-06-21",
+        "time": "15:00"
+      },
+      "elevation": 74.68782108953395,
+      "azimuth": 249.7622456636861
+    },
+    {
+      "name": "拉萨",
+      "settings": {
+        "latitude": 29.65,
+        "longitude": 91.11,
+        "utcOffset": 8,
+        "date": "2026-06-21",
+        "time": "00:00"
+      },
+      "elevation": -29.91021235185156,
+      "azimuth": 328.80361064672707
+    },
+    {
+      "name": "拉萨",
+      "settings": {
+        "latitude": 29.65,
+        "longitude": 91.11,
+        "utcOffset": 8,
+        "date": "2026-12-21",
+        "time": "09:00"
+      },
+      "elevation": 1.815891751747458,
+      "azimuth": 118.41971455656272
+    },
+    {
+      "name": "拉萨",
+      "settings": {
+        "latitude": 29.65,
+        "longitude": 91.11,
+        "utcOffset": 8,
+        "date": "2026-12-21",
+        "time": "12:00"
+      },
+      "elevation": 30.321879679150186,
+      "azimuth": 149.6696944705143
+    },
+    {
+      "name": "拉萨",
+      "settings": {
+        "latitude": 29.65,
+        "longitude": 91.11,
+        "utcOffset": 8,
+        "date": "2026-12-21",
+        "time": "15:00"
+      },
+      "elevation": 34.560325472711696,
+      "azimuth": 198.58207814316617
+    },
+    {
+      "name": "拉萨",
+      "settings": {
+        "latitude": 29.65,
+        "longitude": 91.11,
+        "utcOffset": 8,
+        "date": "2026-12-21",
+        "time": "00:00"
+      },
+      "elevation": -64.00054365218638,
+      "azimuth": 277.0825406329357
+    },
+    {
+      "name": "纽约",
+      "settings": {
+        "latitude": 40.71,
+        "longitude": -74.0,
+        "utcOffset": -5,
+        "date": "2026-03-21",
+        "time": "09:00"
+      },
+      "elevation": 32.20695197048052,
+      "azimuth": 122.11496373677323
+    },
+    {
+      "name": "纽约",
+      "settings": {
+        "latitude": 40.71,
+        "longitude": -74.0,
+        "utcOffset": -5,
+        "date": "2026-03-21",
+        "time": "12:00"
+      },
+      "elevation": 49.71454767867989,
+      "azimuth": 178.80936692189198
+    },
+    {
+      "name": "纽约",
+      "settings": {
+        "latitude": 40.71,
+        "longitude": -74.0,
+        "utcOffset": -5,
+        "date": "2026-03-21",
+        "time": "15:00"
+      },
+      "elevation": 33.264291459558436,
+      "azimuth": 236.549352598525
+    },
+    {
+      "name": "纽约",
+      "settings": {
+        "latitude": 40.71,
+        "longitude": -74.0,
+        "utcOffset": -5,
+        "date": "2026-03-21",
+        "time": "00:00"
+      },
+      "elevation": -49.050421182977644,
+      "azimuth": 358.7688898042858
+    },
+    {
+      "name": "纽约",
+      "settings": {
+        "latitude": 40.71,
+        "longitude": -74.0,
+        "utcOffset": -5,
+        "date": "2026-06-21",
+        "time": "09:00"
+      },
+      "elevation": 49.09605416157966,
+      "azimuth": 101.06067917851425
+    },
+    {
+      "name": "纽约",
+      "settings": {
+        "latitude": 40.71,
+        "longitude": -74.0,
+        "utcOffset": -5,
+        "date": "2026-06-21",
+        "time": "12:00"
+      },
+      "elevation": 72.72096817255272,
+      "azimuth": 181.65065417248817
+    },
+    {
+      "name": "纽约",
+      "settings": {
+        "latitude": 40.71,
+        "longitude": -74.0,
+        "utcOffset": -5,
+        "date": "2026-06-21",
+        "time": "15:00"
+      },
+      "elevation": 48.2995563493865,
+      "azimuth": 259.805561399228
+    },
+    {
+      "name": "纽约",
+      "settings": {
+        "latitude": 40.71,
+        "longitude": -74.0,
+        "utcOffset": -5,
+        "date": "2026-06-21",
+        "time": "00:00"
+      },
+      "elevation": -25.852131959580838,
+      "azimuth": 0.5725370142293968
+    },
+    {
+      "name": "纽约",
+      "settings": {
+        "latitude": 40.71,
+        "longitude": -74.0,
+        "utcOffset": -5,
+        "date": "2026-12-21",
+        "time": "09:00"
+      },
+      "elevation": 14.170175137308192,
+      "azimuth": 139.32958606694262
+    },
+    {
+      "name": "纽约",
+      "settings": {
+        "latitude": 40.71,
+        "longitude": -74.0,
+        "utcOffset": -5,
+        "date": "2026-12-21",
+        "time": "12:00"
+      },
+      "elevation": 25.836081361498657,
+      "azimuth": 181.48636628734803
+    },
+    {
+      "name": "纽约",
+      "settings": {
+        "latitude": 40.71,
+        "longitude": -74.0,
+        "utcOffset": -5,
+        "date": "2026-12-21",
+        "time": "15:00"
+      },
+      "elevation": 12.695978295795788,
+      "azimuth": 222.96603153772486
+    },
+    {
+      "name": "纽约",
+      "settings": {
+        "latitude": 40.71,
+        "longitude": -74.0,
+        "utcOffset": -5,
+        "date": "2026-12-21",
+        "time": "00:00"
+      },
+      "elevation": -72.679330182017,
+      "azimuth": 4.688698450454524
+    },
+    {
+      "name": "悉尼",
+      "settings": {
+        "latitude": -33.87,
+        "longitude": 151.21,
+        "utcOffset": 10,
+        "date": "2026-03-21",
+        "time": "09:00"
+      },
+      "elevation": 35.41002891508354,
+      "azimuth": 61.267571652934464
+    },
+    {
+      "name": "悉尼",
+      "settings": {
+        "latitude": -33.87,
+        "longitude": 151.21,
+        "utcOffset": 10,
+        "date": "2026-03-21",
+        "time": "12:00"
+      },
+      "elevation": 55.938681917053565,
+      "azimuth": 1.0822454868865634
+    },
+    {
+      "name": "悉尼",
+      "settings": {
+        "latitude": -33.87,
+        "longitude": 151.21,
+        "utcOffset": 10,
+        "date": "2026-03-21",
+        "time": "15:00"
+      },
+      "elevation": 36.21969909602357,
+      "azimuth": 299.8516469787926
+    },
+    {
+      "name": "悉尼",
+      "settings": {
+        "latitude": -33.87,
+        "longitude": 151.21,
+        "utcOffset": 10,
+        "date": "2026-03-21",
+        "time": "00:00"
+      },
+      "elevation": -56.11351420745925,
+      "azimuth": 181.1532414815362
+    },
+    {
+      "name": "悉尼",
+      "settings": {
+        "latitude": -33.87,
+        "longitude": 151.21,
+        "utcOffset": 10,
+        "date": "2026-06-21",
+        "time": "09:00"
+      },
+      "elevation": 18.92312819790677,
+      "azimuth": 42.561302393670985
+    },
+    {
+      "name": "悉尼",
+      "settings": {
+        "latitude": -33.87,
+        "longitude": 151.21,
+        "utcOffset": 10,
+        "date": "2026-06-21",
+        "time": "12:00"
+      },
+      "elevation": 32.68547063182386,
+      "azimuth": 359.1514128371764
+    },
+    {
+      "name": "悉尼",
+      "settings": {
+        "latitude": -33.87,
+        "longitude": 151.21,
+        "utcOffset": 10,
+        "date": "2026-06-21",
+        "time": "15:00"
+      },
+      "elevation": 18.038649141290783,
+      "azimuth": 316.25607879975513
+    },
+    {
+      "name": "悉尼",
+      "settings": {
+        "latitude": -33.87,
+        "longitude": 151.21,
+        "utcOffset": 10,
+        "date": "2026-06-21",
+        "time": "00:00"
+      },
+      "elevation": -79.54258249729608,
+      "azimuth": 175.9236747955431
+    },
+    {
+      "name": "悉尼",
+      "settings": {
+        "latitude": -33.87,
+        "longitude": 151.21,
+        "utcOffset": 10,
+        "date": "2026-12-21",
+        "time": "09:00"
+      },
+      "elevation": 50.95111082379154,
+      "azimuth": 86.1494571717758
+    },
+    {
+      "name": "悉尼",
+      "settings": {
+        "latitude": -33.87,
+        "longitude": 151.21,
+        "utcOffset": 10,
+        "date": "2026-12-21",
+        "time": "12:00"
+      },
+      "elevation": 79.45337231240494,
+      "azimuth": 351.21719201221384
+    },
+    {
+      "name": "悉尼",
+      "settings": {
+        "latitude": -33.87,
+        "longitude": 151.21,
+        "utcOffset": 10,
+        "date": "2026-12-21",
+        "time": "15:00"
+      },
+      "elevation": 48.05676740901294,
+      "azimuth": 271.7370215874749
+    },
+    {
+      "name": "悉尼",
+      "settings": {
+        "latitude": -33.87,
+        "longitude": 151.21,
+        "utcOffset": 10,
+        "date": "2026-12-21",
+        "time": "00:00"
+      },
+      "elevation": -32.6752814763276,
+      "azimuth": 178.02996517292627
+    },
+    {
+      "name": "赫尔辛基",
+      "settings": {
+        "latitude": 60.17,
+        "longitude": 24.94,
+        "utcOffset": 2,
+        "date": "2026-03-21",
+        "time": "09:00"
+      },
+      "elevation": 18.132071818947725,
+      "azimuth": 124.14586553913881
+    },
+    {
+      "name": "赫尔辛基",
+      "settings": {
+        "latitude": 60.17,
+        "longitude": 24.94,
+        "utcOffset": 2,
+        "date": "2026-03-21",
+        "time": "12:00"
+      },
+      "elevation": 29.90974503159937,
+      "azimuth": 172.089482443243
+    },
+    {
+      "name": "赫尔辛基",
+      "settings": {
+        "latitude": 60.17,
+        "longitude": 24.94,
+        "utcOffset": 2,
+        "date": "2026-03-21",
+        "time": "15:00"
+      },
+      "elevation": 23.368074475034284,
+      "azimuth": 222.3015497964293
+    },
+    {
+      "name": "赫尔辛基",
+      "settings": {
+        "latitude": 60.17,
+        "longitude": 24.94,
+        "utcOffset": 2,
+        "date": "2026-03-21",
+        "time": "00:00"
+      },
+      "elevation": -29.476222763986563,
+      "azimuth": 352.08142886540054
+    },
+    {
+      "name": "赫尔辛基",
+      "settings": {
+        "latitude": 60.17,
+        "longitude": 24.94,
+        "utcOffset": 2,
+        "date": "2026-06-21",
+        "time": "09:00"
+      },
+      "elevation": 39.4429216095865,
+      "azimuth": 113.53697474576524
+    },
+    {
+      "name": "赫尔辛基",
+      "settings": {
+        "latitude": 60.17,
+        "longitude": 24.94,
+        "utcOffset": 2,
+        "date": "2026-06-21",
+        "time": "12:00"
+      },
+      "elevation": 53.06497919669226,
+      "azimuth": 171.5697178284306
+    },
+    {
+      "name": "赫尔辛基",
+      "settings": {
+        "latitude": 60.17,
+        "longitude": 24.94,
+        "utcOffset": 2,
+        "date": "2026-06-21",
+        "time": "15:00"
+      },
+      "elevation": 44.20880135061296,
+      "azimuth": 234.4790302268597
+    },
+    {
+      "name": "赫尔辛基",
+      "settings": {
+        "latitude": 60.17,
+        "longitude": 24.94,
+        "utcOffset": 2,
+        "date": "2026-06-21",
+        "time": "00:00"
+      },
+      "elevation": -6.27469942872106,
+      "azimuth": 354.9407129116628
+    },
+    {
+      "name": "赫尔辛基",
+      "settings": {
+        "latitude": 60.17,
+        "longitude": 24.94,
+        "utcOffset": 2,
+        "date": "2026-12-21",
+        "time": "09:00"
+      },
+      "elevation": -2.8072003172182423,
+      "azimuth": 135.65027437594676
+    },
+    {
+      "name": "赫尔辛基",
+      "settings": {
+        "latitude": 60.17,
+        "longitude": 24.94,
+        "utcOffset": 2,
+        "date": "2026-12-21",
+        "time": "12:00"
+      },
+      "elevation": 6.307383603615047,
+      "azimuth": 175.78598496339123
+    },
+    {
+      "name": "赫尔辛基",
+      "settings": {
+        "latitude": 60.17,
+        "longitude": 24.94,
+        "utcOffset": 2,
+        "date": "2026-12-21",
+        "time": "15:00"
+      },
+      "elevation": 0.13611756281452755,
+      "azimuth": 216.50395955671604
+    },
+    {
+      "name": "赫尔辛基",
+      "settings": {
+        "latitude": 60.17,
+        "longitude": 24.94,
+        "utcOffset": 2,
+        "date": "2026-12-21",
+        "time": "00:00"
+      },
+      "elevation": -53.13060279480968,
+      "azimuth": 353.103182493487
+    }
+  ]
+}

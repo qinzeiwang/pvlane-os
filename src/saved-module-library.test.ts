@@ -1,0 +1,10 @@
+import {it,expect} from 'vitest';
+import {readModuleLibrary,saveModuleLibrary,mergeModuleLibrary} from './saved-module-library';
+import {defaultModuleCatalog} from './module-library';
+function storage(){let value:string|null=null;return {getItem:()=>value,setItem:(_key:string,v:string)=>{value=v;}};}
+it('retains custom specs and default across new reads without shared references',()=>{const s=storage(),items=defaultModuleCatalog();items[0].name='常用 620W';items[0].spec.power=620;saveModuleLibrary({items,defaultId:items[0].id},s);const loaded=readModuleLibrary(s);expect(loaded.items[0].spec.power).toBe(620);expect(loaded.defaultId).toBe(items[0].id);loaded.items[0].spec.power=700;expect(readModuleLibrary(s).items[0].spec.power).toBe(620);});
+it('merges without overwriting project specs or duplicate specs',()=>{const items=defaultModuleCatalog(),saved=defaultModuleCatalog();saved[0].spec.power=620;const merged=mergeModuleLibrary(items,saved);expect(merged).toHaveLength(2);expect(merged[0].spec.power).toBe(550);expect(merged[1].id).not.toBe(items[0].id);});
+it('handles damaged storage and rejects invalid save',()=>{const s=storage();s.setItem('', '{bad');expect(readModuleLibrary(s).items).toEqual(defaultModuleCatalog());expect(()=>saveModuleLibrary({items:defaultModuleCatalog(),defaultId:'missing'},s)).toThrow();});
+
+it('imports without spec duplication and rejects overflow atomically',()=>{const items=defaultModuleCatalog();expect(mergeModuleLibrary(items,items)).toEqual(items);const full=Array.from({length:50},(_,i)=>({...items[0],id:'m'+i,spec:{...items[0].spec,power:100+i}}));expect(()=>mergeModuleLibrary(full,items)).toThrow();expect(full).toHaveLength(50);});
+it('rejects nonstandard modules and falls back when storage is unavailable',()=>{const items=defaultModuleCatalog();expect(()=>saveModuleLibrary({items:[{...items[0],spec:{...items[0].spec,kind:'lightweight' as never}}],defaultId:items[0].id},storage())).toThrow();expect(readModuleLibrary({getItem:()=>{throw Error('blocked')},setItem:()=>{}}).items).toEqual(defaultModuleCatalog());});

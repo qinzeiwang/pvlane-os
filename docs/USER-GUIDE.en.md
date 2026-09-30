@@ -28,7 +28,7 @@ Projects are not saved automatically. After important changes, use the save butt
 
 1. Select **New Project** and then **No Base Drawing**.
 2. Select **Add Region** and choose a flat, mono-pitch, or gable roof.
-3. Enter roof width and length in the **Region** panel. Each dimension must be between 2 and 200 m.
+3. Select **Start Drawing** and draw on the blank canvas. Click two endpoints and a third point for a rectangle. For flat roofs, choose **Polyline**, click successive corners, then click the starting point or **Close Roof**. Dimensions are limited to 2–200 m.
 4. For a flat roof, enter roof height and parapet height. For a pitched roof, enter pitch and eave height, then set the slope or ridge direction.
 5. Keep multiple roofs from overlapping.
 
@@ -50,9 +50,23 @@ Use the mouse wheel to zoom. Drag with the middle mouse button or hold Space whi
 - An **obstacle** has height and participates in footprint and shadow avoidance.
 - A **keep-out zone** has no height and prevents modules from entering its area.
 
-Without a base drawing, the add button creates an editable rectangle. With a drawing, define the rectangle with three points. Each roof supports up to 100 obstacles and keep-out zones in total.
+Use three points on the blank canvas or base drawing to create a rectangle. Double-click an object or use its Edit button to adjust its outline and height. Each roof allows up to 100 auxiliary buildings, obstacles, and keep-out zones combined.
 
 Changing a roof, obstacle, module specification, or layout rule marks the existing layout as outdated. Run automatic layout again before generating a final report.
+
+### Polygon roofs
+
+Flat roofs support concave polygons with 3–64 vertices. Select **Polyline** in the drawing toolbar, click corners, then close the outline. Self-intersections and overlapping edges are rejected. Drag vertices in outline editing and run layout again. Polygon roofs currently support flat roofs only.
+
+### Auxiliary building tops
+
+Select **Add Auxiliary Building** under Region, enter its height above the roof, and draw a rotated rectangle. Select it, enable **Place Modules on Top**, and set top tilt and edge clearance. Run automatic layout. The footprint remains an obstacle while its horizontal top receives a separate array; taller neighboring objects participate in top shadow avoidance. Top modules count once under the parent roof. Top area is not added again to roof area. Disabling top layout or deleting the building removes its hosted arrays. Complex pitched tops and structural loading require separate review.
+
+### Location and shadows
+
+A recognized city uses an offline reference coordinate. For other locations, open **System Settings → Project Location → Enter Coordinates**, enter a complete latitude/longitude pair, and apply it. Manual coordinates take priority over the address. City reference points are approximate, not surveyed project coordinates.
+
+Displayed shadows follow coordinates, date, local time, UTC offset, and drawing north. Automatic layout uses the local winter-solstice shadow envelope sampled from 09:00 to 15:00 true solar time; latitude affects design spacing. Changing the display date does not change the design interval. Southern-hemisphere winter is supported; polar-night locations are rejected by the current automatic check. Old projects without reliable coordinates retain geometry and arrays but require a location and recalculation. Coordinate, outline, and top-rule changes require recalculation.
 
 ## 6. Modules and automatic layout
 
@@ -61,7 +75,7 @@ Changing a roof, obstacle, module specification, or layout rule marks the existi
 3. Set connected rows, module direction, side aisle, and front-to-back spacing.
 4. Select **Layout Current Roof**. For a multi-roof project, you can also select **Layout All Roofs**.
 
-Main limits are: 0–60° tilt, 0–20 m side aisle and roof edge, 0–100 m front-to-back spacing, and 1–3 connected rows. A project supports up to 5000 modules.
+Main limits are: 0–60° tilt, 0–20 m side aisle and roof edge, 0–100 m front-to-back spacing, and 1–6 connected rows on gable roofs (1–3 on flat and single-slope roofs). A project supports up to 5000 modules.
 
 After layout, check the status:
 
@@ -71,7 +85,7 @@ After layout, check the status:
 
 ## 7. 2D, 3D, and image overlays
 
-Use 2D for layout and conflict review. Use 3D to inspect roofs, modules, shadows, and the final report viewpoint. Display settings control the background, ground, material style, and winter-solstice solar time.
+Use 2D for layout and conflict review. Use 3D to inspect roofs, modules, shadows, and the final report viewpoint. Display settings control the background, ground, simple/standard/fine rendering quality, date, local time, UTC offset, and shadow mode.
 
 **Image Overlay** imports an independent PNG, JPG, or WebP reference image. Each file may be up to 8 MB, with a maximum of eight images. You can move, proportionally resize, rotate, change opacity, hide, or delete an overlay.
 
@@ -91,7 +105,7 @@ project-03-report.json
 
 ### Generate a report
 
-1. Confirm the **Report** tab has no update-required message.
+1. Update every roof and resolve boundary, module overlap, and obstacle footprint conflicts. The **Report** page lists roofs that still require attention.
 2. Select **Enter 3D and Preview Report**.
 3. Adjust the 3D viewpoint and preview the report.
 4. Select **Download to...** to save HTML, or use **Print / Save as PDF** inside the report.
@@ -127,3 +141,20 @@ PVLANE has no backend upload flow. Imported drawings and project data are proces
 ## 11. Getting help
 
 When opening a GitHub Issue, include your operating system, browser and version, Node.js version, reproduction steps, actual result, and expected result. A project JSON may contain base drawings and business data; attach it only after confirming that its contents may be public.
+
+### Common module library
+
+In Settings → Module Library, add or edit specifications and apply edits first. Select the default module for new projects, then click Save as Common Library. The library is stored in the current browser or offline application. New projects use it automatically; clearing storage or changing browsers does not transfer it. Existing project files keep their own catalog. Import Common Library appends specifications without overwriting existing ones. Each catalog supports up to 50 standard module types.
+
+The primary roof menu contains flat and gable roofs. Expand Other Roof Types for a single-slope roof. Gable roofs support 1–6 connected rows; flat and single-slope roofs support 1–3. Switching from gable to another type clamps the setting to at most three rows and requires recalculation.
+
+Simple, standard and fine rendering remain available. Pitched roofs use metal-roof textures and factory details. Fine mode adds neutral-grey PV cells, concrete wall textures, concrete ground and a bundled HDR environment. These are illustrative materials; the HDR does not replace the solar direction calculated from project coordinates and time. Fine mode uses more graphics memory. All resources work offline.
+
+## Editing and keyboard controls
+
+- System settings apply immediately. Recalculate layouts after changing location, north or edge margins. Closing discards coordinate drafts that have not been applied.
+- Module edits take effect only after selecting Apply specifications. Cancel changes restores the original values. Save to common library is disabled while edits are pending; closing the library discards pending drafts.
+- Rename a region: Enter or leaving the field commits the name; Escape cancels and keeps the original name.
+- Tab / Shift+Tab moves through modal controls. Escape closes the dialog and restores focus to its opener. In the drawing editor, Escape cancels the current drawing without closing the editor.
+- When editing a small obstacle or exclusion zone, Frame selected object zooms in and Show entire drawing restores the overview. Done applies the edit; Cancel preserves the original geometry.
+- Polygon roofs currently support flat roofs. Create a rectangular region for a pitched roof. Collapse the operation panel to free canvas space in a small window.

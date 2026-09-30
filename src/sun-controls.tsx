@@ -1,0 +1,21 @@
+import './location-presets.css';
+import {useState} from 'react';
+import {sunPosition,validSunSettings,type SunSettings} from './sun-position';
+import {cityPresets,locationNote,locationResolved,locationMismatch,matchCity,winterShadowFactor} from './location-presets';
+type Props={value:SunSettings;onChange:(s:SunSettings)=>void};
+export function SunLocation({value,onChange,address='',onDraftChange}:Props&{address?:string;onDraftChange?:(editing:boolean)=>void}){
+ const [editing,setEditingState]=useState(false),[lon,setLon]=useState(''),[lat,setLat]=useState('');
+ const setEditing=(next:boolean)=>{setEditingState(next);onDraftChange?.(next);};
+ const mismatch=locationMismatch(value,address);
+ const start=()=>{setLon((locationResolved(value)||value.coordinateSource==='manual')?String(value.longitude):'');setLat((locationResolved(value)||value.coordinateSource==='manual')?String(value.latitude):'');setEditing(true);};
+ const ready=lon.trim()!==''&&lat.trim()!==''&&Number.isFinite(Number(lon))&&Number.isFinite(Number(lat))&&Math.abs(Number(lon))<=180&&Math.abs(Number(lat))<=90;
+ return <div className="location-choice"><p className="settings-note" role="status">{locationNote(value)}</p>
+ {mismatch&&<p className="location-warning" role="alert">{mismatch.message}</p>}{address.trim()&&locationResolved(value)&&!matchCity(address)&&<p className="settings-note">地点文字未匹配唯一预设城市，无法核对距离；阴影按以上经纬度计算。</p>}
+ <div className="location-actions"><button type="button" onClick={start}>填写经纬度</button></div>
+ {editing&&<><div className="settings-fields"><label>经度 °<input aria-label="经度 °" type="number" min="-180" max="180" step=".0001" value={lon} onChange={e=>setLon(e.target.value)}/></label><label>纬度 °<input aria-label="纬度 °" type="number" min="-90" max="90" step=".0001" value={lat} onChange={e=>setLat(e.target.value)}/></label></div><p className="settings-note">东经、北纬为正；西经、南纬为负。经纬度优先于地点文字，点击“应用经纬度”后生效。</p>{!ready&&(lon||lat)&&<p className="location-warning" role="alert">{Math.abs(Number(lat))>90&&Math.abs(Number(lon))<=90?'纬度超过 ±90°，可能将经度、纬度填反了。':'请完整填写经纬度；经度须在 ±180°、纬度须在 ±90° 以内。'}</p>}<button type="button" disabled={!ready} onClick={()=>{onChange({...value,longitude:Number(lon),latitude:Number(lat),locationMode:'manual',coordinateSource:'manual',locationName:undefined});setEditing(false);}}>应用经纬度</button><button type="button" onClick={()=>setEditing(false)} style={{marginLeft:8}}>取消填写</button></>}
+ <details className="settings-secondary"><summary>典型城市参考值 · {cityPresets.length} 个</summary><p className="settings-note">1 米高差、正南朝向，冬至真太阳时 9–15 时的南北阴影投影；不是完整影长。</p><div className="city-reference"><table><thead><tr><th>城市</th><th>经度 / 纬度</th><th>投影 m</th><th>采用</th></tr></thead><tbody>{cityPresets.map(c=><tr key={c.name}><td>{c.name}</td><td>{c.longitude.toFixed(2)} / {c.latitude.toFixed(2)}</td><td>{winterShadowFactor(c.latitude).toFixed(2)}</td><td><button type="button" aria-label={`采用${c.name}坐标`} onClick={()=>{setEditing(false);onChange({...value,longitude:c.longitude,latitude:c.latitude,utcOffset:8,locationMode:'preset',coordinateSource:'preset',locationName:c.name});}}>采用</button></td></tr>)}</tbody></table></div><p className="settings-note">坐标来源：GeoNames，城市参考点，CC BY 4.0。</p></details></div>;
+}
+export function SunDateTime({value,onChange}:Props){
+ const sun=sunPosition(value),update=(patch:Partial<SunSettings>)=>{const next={...value,...patch};if(validSunSettings(next))onChange(next)};
+ return <div className="sun-controls"><div className="sun-fields"><label>光照日期<input aria-label="光照日期" type="date" min="1900-01-01" max="2100-12-31" value={value.date} onChange={e=>update({date:e.target.value})}/></label><label>当地时间<input aria-label="光照时间" type="time" value={value.time} onChange={e=>update({time:e.target.value})}/></label></div><label className="sun-zone">时区<select aria-label="光照时区" value={value.utcOffset} onChange={e=>update({utcOffset:Number(e.target.value)})}>{Array.from({length:105},(_,i)=>-12+i*.25).map(offset=><option key={offset} value={offset}>{offset===8?'北京时间 · ':''}UTC{offset>=0?'+':''}{offset}</option>)}</select></label><p className="sun-readout" role="status">{!locationResolved(value)?'地点未确定 · 光照仅为示意':sun.daylight?`太阳高度 ${sun.elevation.toFixed(1)}° · 方位 ${sun.azimuth.toFixed(1)}°`:'太阳在地平线以下 · 无直射光'}</p></div>;
+}

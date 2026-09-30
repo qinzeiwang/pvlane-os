@@ -1,10 +1,12 @@
+import {parseSunSettings,type SunSettings} from './sun-position';
+import {restoreProjectLocation,ignoresShadows} from './location-presets';
 import {parseImageOverlays,type ImageOverlay} from './image-overlays';
 import { validPitch } from './pitched-roof';
 import { parseProject } from './project-file';
 import { newRoof, totals, type RoofDesign } from './roof-project';
 import type { BaseImage } from './base-image';
 import {parseModuleCatalog,sameModule,type ModuleCatalogItem} from './module-library';
-export type WorkspaceFile={version:3;imageOverlays?:ImageOverlay[];moduleCatalog?:ModuleCatalogItem[];globalEdge?:number;name:string;address?:string;hasRegions?:boolean;roofs:RoofDesign[];activeId:string;solarHour:number;backgroundColor:string;groundColor:string;baseImage?:BaseImage};
+export type WorkspaceFile={version:3;sunSettings?:SunSettings;imageOverlays?:ImageOverlay[];moduleCatalog?:ModuleCatalogItem[];globalEdge?:number;name:string;address?:string;hasRegions?:boolean;roofs:RoofDesign[];activeId:string;solarHour:number;backgroundColor:string;groundColor:string;baseImage?:BaseImage};
 export function parseWorkspace(text:string):WorkspaceFile {
  const raw=JSON.parse(text);
  const checkModule=(m:{kind?:string}|undefined)=>{if(m?.kind&&m.kind!=='standard')throw new Error('当前版本仅支持标准组件');};
@@ -12,9 +14,10 @@ export function parseWorkspace(text:string):WorkspaceFile {
  if(raw.version!==3){const p=parseProject(text),r={...newRoof(),northAngle:p.baseImage?.northAngle,roof:p.roof,obstacles:p.obstacles,arrays:p.arrays,moduleSpec:p.module,layoutOptions:p.rules,wallHeight:p.wallHeight};const b=p.baseImage;
   if(b?.frame&&b.metersPerPixel){r.x=(b.frame.x+b.frame.width/2-b.width/2)*b.metersPerPixel;r.z=(b.frame.y+b.frame.height/2-b.height/2)*b.metersPerPixel;b.frame={x:0,y:0,width:b.width,height:b.height};}
   const moduleCatalog=parseModuleCatalog(undefined,[r.moduleSpec]);r.moduleId=moduleCatalog[0].id;
-  return {version:3,moduleCatalog,globalEdge:r.layoutOptions.edge,name:p.name,roofs:[r],activeId:r.id,solarHour:p.solarHour,backgroundColor:p.backgroundColor,groundColor:p.groundColor,baseImage:b};
+  return {version:3,sunSettings:restoreProjectLocation(undefined),moduleCatalog,globalEdge:r.layoutOptions.edge,name:p.name,roofs:[r],activeId:r.id,solarHour:p.solarHour,backgroundColor:p.backgroundColor,groundColor:p.groundColor,baseImage:b};
  }
  const p=raw as WorkspaceFile;
+ p.sunSettings=restoreProjectLocation(parseSunSettings(p.sunSettings),p.address);
  if(p.imageOverlays!==undefined)p.imageOverlays=parseImageOverlays(p.imageOverlays);
  delete (p as unknown as {energySettings?:unknown}).energySettings;
  if(p.address!==undefined&&typeof p.address!=='string')throw new Error('项目地址无效');
@@ -25,10 +28,12 @@ export function parseWorkspace(text:string):WorkspaceFile {
   r.northAngle=p.baseImage?.northAngle??r.northAngle;
   if(r.flatHeight!==undefined&&(!Number.isFinite(r.flatHeight)||r.flatHeight<1||r.flatHeight>100))throw new Error('屋面高度无效');
   if((r as unknown as {carport?:unknown}).carport!==undefined)throw new Error('当前版本不支持车棚项目数据');
+  if(r.roof?.outline&&r.pitch)throw new Error('多段线轮廓仅支持平屋面');
   if(r.pitch!==undefined&&!validPitch(r.pitch))throw new Error("屋面坡度参数无效");
   if(typeof r.id!=='string'||r.id.includes('/')||typeof r.name!=='string'||![r.x,r.z,r.yaw].every(Number.isFinite)||Math.abs(r.x)>100000||Math.abs(r.z)>100000)throw new Error('屋面坐标无效');
-  parseProject(JSON.stringify({version:2,name:p.name,roof:r.roof,obstacles:r.obstacles,arrays:r.arrays,module:r.moduleSpec,rules:r.layoutOptions,wallHeight:r.wallHeight,solarHour:p.solarHour,backgroundColor:p.backgroundColor,groundColor:p.groundColor}));
+  parseProject(JSON.stringify({version:2,name:p.name,roof:r.roof,obstacles:r.obstacles,arrays:r.arrays,module:r.moduleSpec,rules:r.layoutOptions,wallHeight:r.wallHeight,solarHour:p.solarHour,backgroundColor:p.backgroundColor,groundColor:p.groundColor}),r.pitch);
   if(r.moduleSpec.kind===undefined)r.moduleSpec.kind='standard';
+  r.layoutOptions={...r.layoutOptions,shadowLatitude:p.sunSettings!.latitude,shadowIgnored:ignoresShadows(p.sunSettings!)};
   r.previous=null;
   if(typeof r.layoutSignature!=='string')r.layoutSignature='';
   if(typeof r.layoutMessage!=='string')r.layoutMessage='';
@@ -44,12 +49,13 @@ export function parseWorkspace(text:string):WorkspaceFile {
  if(p.globalEdge===undefined)p.globalEdge=p.roofs[0].layoutOptions.edge;
  if(!Number.isFinite(p.globalEdge)||p.globalEdge<0||p.globalEdge>20)throw new Error('全局屋面边距无效');
  if(totals(p.roofs).count>5000)throw new Error('项目组件总数超过 5000');
- if(p.baseImage){const r=p.roofs[0];parseProject(JSON.stringify({version:2,name:p.name,roof:r.roof,obstacles:[],arrays:[],module:r.moduleSpec,rules:r.layoutOptions,wallHeight:r.wallHeight,solarHour:p.solarHour,backgroundColor:p.backgroundColor,groundColor:p.groundColor,baseImage:p.baseImage}));}
+ if(p.baseImage){const r=p.roofs[0];parseProject(JSON.stringify({version:2,name:p.name,roof:r.roof,obstacles:[],arrays:[],module:r.moduleSpec,rules:r.layoutOptions,wallHeight:r.wallHeight,solarHour:p.solarHour,backgroundColor:p.backgroundColor,groundColor:p.groundColor,baseImage:p.baseImage}),r.pitch);}
  if(!p.roofs.some(r=>r.id===p.activeId))p.activeId=p.roofs[0].id;
  return p;
 }
 type SaveHandle={name:string;createWritable:()=>Promise<{write:(data:Blob)=>Promise<void>;close:()=>Promise<void>}>};
 export async function downloadWorkspace(p:WorkspaceFile):Promise<string|null>{
+ if(window.pvlaneDesktop)return window.pvlaneDesktop.saveFile('project',`${p.name||'光伏方案'}.json`,JSON.stringify(p));
  const picker=(window as unknown as {showSaveFilePicker?:(options:unknown)=>Promise<SaveHandle>}).showSaveFilePicker;
  if(!picker)throw new Error('当前浏览器不支持选择保存位置，请在 Chrome 或 Edge 中打开本项目后保存。');
  const suggestedName=`${p.name.replace(/[\\/:*?"<>|]/g,'_')||'光伏方案'}.json`;

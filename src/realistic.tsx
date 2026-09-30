@@ -1,3 +1,12 @@
+import {roofHeight} from './pitched-roof';
+import {deliveryConcrete,deliveryGround} from './delivery-materials';
+import {DeliveryPbr,DeliveryWall} from './delivery-pbr';
+import {FlatFacade} from './flat-facade-mesh';
+import {referenceCells,referenceGlass} from './pv-material';
+import {HDRLoader} from 'three/addons/loaders/HDRLoader.js';
+import {FootprintGeometry} from './footprint-mesh';
+import {parapets} from './shadow-zones';
+import {sunPosition,type SunSettings} from './sun-position';
 import { PitchedMesh } from './pitched-mesh';
 import { winterSun } from "./solar";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
@@ -8,12 +17,12 @@ import type { RenderQuality } from './render-options';
 import { geometry, initial, type PVArray } from "./domain";
 
 // Synthetic material study: no product photograph, remote texture or model required.
-function panelTexture() {
+export function panelTexture() {
   const canvas = document.createElement("canvas");
   canvas.width = 512;
   canvas.height = 1024;
   const c = canvas.getContext("2d")!;
-  c.fillStyle = "#263c4e";
+  c.fillStyle = "#282a2d";
   c.fillRect(0, 0, 512, 1024);
   for (let row = 0; row < 12; row++)
     for (let col = 0; col < 6; col++) {
@@ -21,11 +30,11 @@ function panelTexture() {
         y = row * 84 + 9,
         w = 79,
         h = 78;
-      c.fillStyle = `rgb(${17 + ((row + col) % 3)},${39 + ((row * 3 + col) % 5)},${61 + ((row + col * 2) % 7)})`;
+      c.fillStyle = `rgb(${25 + ((row + col) % 3)},${27 + ((row + col) % 3)},${29 + ((row + col) % 3)})`;
       c.beginPath();
       c.roundRect(x, y, w, h, 5);
       c.fill();
-      c.strokeStyle = "rgba(138,168,188,.32)";
+      c.strokeStyle = "rgba(150,153,157,.32)";
       c.lineWidth = 0.7;
       for (let k = 1; k < 13; k++) {
         c.beginPath();
@@ -33,7 +42,7 @@ function panelTexture() {
         c.lineTo(x + w - 2, y + (k * h) / 13);
         c.stroke();
       }
-      c.strokeStyle = "rgba(176,195,211,.60)";
+      c.strokeStyle = "rgba(183,187,191,.60)";
       c.lineWidth = 0.95;
       for (let k = 1; k <= 3; k++) {
         c.beginPath();
@@ -195,6 +204,7 @@ function Instances({
   );
 }
 export function RealisticScene({
+  sunSettings,
   quality = 'standard',
   arrays,
   stress,
@@ -207,6 +217,7 @@ export function RealisticScene({
   sites,
   focus = {x:0,z:0},
 }: {
+  sunSettings?:SunSettings;
   quality?: RenderQuality;
   sites?: import("./domain").SceneSite[];
   focus?: {x:number;z:number};
@@ -223,23 +234,28 @@ export function RealisticScene({
   const span = stress ? 200 : roof.width,
     depth = stress ? 200 : roof.depth;
   const sourceSun=winterSun(solarHour),north=northAngle*Math.PI/180;
-  const sun={...sourceSun,x:sourceSun.x*Math.cos(north)-sourceSun.z*Math.sin(north),z:sourceSun.x*Math.sin(north)+sourceSun.z*Math.cos(north)};
+  const sun=sunSettings?sunPosition(sunSettings,northAngle):{...sourceSun,x:sourceSun.x*Math.cos(north)-sourceSun.z*Math.sin(north),z:sourceSun.x*Math.sin(north)+sourceSun.z*Math.cos(north)};
   const center=stress?{x:0,z:0}:focus;
+  const sunLight=useRef<T.DirectionalLight>(null);
   const lightTarget=useMemo(()=>new T.Object3D(),[]);
   lightTarget.position.set(center.x,0,center.z);
   const surfaces:import("./domain").SceneSite[]=stress||!sites?[{id:"roof",name:"屋面",x:0,z:0,yaw:0,width:span,depth,wallHeight}]:sites;
+  const maxHeight=Math.max(0,...surfaces.map(r=>r.pitch?Math.max(roofHeight(r,r.pitch,0,0),...[-1,1].flatMap(x=>[-1,1].map(z=>roofHeight(r,r.pitch!,x*r.width/2,z*r.depth/2)))):(r.flatHeight??3.5)-3.5+r.wallHeight),...obstacles.map(o=>(o.baseHeight??0)+o.height));
+  const targetHeight=(maxHeight-3.5)/2;
+  lightTarget.position.set(center.x,targetHeight,center.z);
   const data = useMemo(() => instanceData(arrays), [arrays]);
   const resources = useMemo(() => {
-    const cells = panelTexture(),
+    const cells = quality==='fine'?referenceCells():panelTexture(),
       horizontal = cells.clone();
     horizontal.needsUpdate = true;
     horizontal.center.set(0.5, 0.5);
     horizontal.rotation = Math.PI / 2;
-    const roofMap = roofTexture();
+    const roofMap = quality==='fine'?deliveryConcrete():roofTexture();
+    const groundMap=quality==='fine'?deliveryGround(span+18,depth+18):null;
     const glass = (map: T.Texture) =>
-      quality === 'simple' ? new T.MeshLambertMaterial({color:'#263c4e'}) : new T.MeshPhysicalMaterial({
+      quality === 'simple' ? new T.MeshLambertMaterial({color:'#282a2d'}) : quality==='fine'?referenceGlass(map):new T.MeshPhysicalMaterial({
         map,
-        color: "#e0eaf0",
+        color: "#d5d5d5",
         roughness: 0.28,
         metalness: 0.16,
         clearcoat: 0.45,
@@ -253,6 +269,7 @@ export function RealisticScene({
       cells,
       horizontal,
       roofMap,
+      groundMap,
       glass: glass(cells),
       glassHorizontal: glass(horizontal),
       aluminum: new T.MeshStandardMaterial({
@@ -267,15 +284,15 @@ export function RealisticScene({
       }),
       pad: new T.MeshStandardMaterial({ color: "#767b77", roughness: 0.93 }),
     };
-  }, [quality]);
+  }, [quality,span,depth]);
   useEffect(
     () => () => {
-      Object.values(resources).forEach((v) => v.dispose());
+      Object.values(resources).forEach((v) => v?.dispose());
     },
     [resources],
   );
   useLayoutEffect(() => {
-    resources.roofMap.repeat.set(span / 4, depth / 4);
+    resources.roofMap.repeat.set(span / 4, depth / (quality==='fine'?6:4));
   }, [resources, span, depth]);
   useEffect(() => {
     if (quality === 'simple') {
@@ -296,9 +313,12 @@ export function RealisticScene({
       target = generator.fromScene(envScene, 0.04, 0.1, 1000);
     const old = scene.environment;
     scene.environment = target.texture;
-    scene.environmentIntensity = quality==='fine'?0.55:0.35;
+    scene.environmentIntensity = .35;
+    let cancelled=false,hdrTarget:T.WebGLRenderTarget|undefined;
+    if(quality==='fine')new HDRLoader().load(`${import.meta.env.BASE_URL}textures/outdoor-sky-2k.hdr`,texture=>{if(cancelled){texture.dispose();return;}hdrTarget=generator.fromEquirectangular(texture);texture.dispose();scene.environment=hdrTarget.texture;scene.environmentIntensity=.5;gl.shadowMap.needsUpdate=true;invalidate();},undefined,()=>invalidate());
     invalidate();
     return () => {
+      cancelled=true;hdrTarget?.dispose();
       scene.environment = old;
       scene.environmentIntensity = 1;
       target.dispose();
@@ -306,7 +326,7 @@ export function RealisticScene({
       sky.geometry.dispose();
       sky.material.dispose();
     };
-  }, [gl, scene, invalidate, solarHour,northAngle,quality]);
+  }, [gl, scene, invalidate, solarHour,northAngle,sunSettings,quality]);
   useEffect(() => {
     gl.shadowMap.autoUpdate = false;
     gl.shadowMap.needsUpdate = true;
@@ -314,12 +334,14 @@ export function RealisticScene({
     return () => {
       gl.shadowMap.autoUpdate = true;
     };
-  }, [gl, invalidate, arrays, stress, obstacles, span, depth, solarHour,northAngle, wallHeight, sites,quality]);
+  }, [gl, invalidate, arrays, stress, obstacles, span, depth, solarHour,northAngle,sunSettings, wallHeight, sites,quality]);
+  useLayoutEffect(()=>{const light=sunLight.current;if(light){light.shadow.camera.updateProjectionMatrix();lightTarget.updateMatrixWorld(true);light.updateMatrixWorld(true);gl.shadowMap.needsUpdate=true;invalidate();}},[span,depth,quality,lightTarget,gl,invalidate]);
   useEffect(() => { invalidate(); }, [backgroundColor, groundColor, invalidate]);
   const extent = Math.max(span, depth) * 0.8,
     lightScale = Math.max(1, Math.max(span, depth) / 30);
   return (
     <>
+      <group name="pvlane-realistic-ready" />
       <color attach="background" args={[backgroundColor]} />
       <fog
         attach="fog"
@@ -328,11 +350,13 @@ export function RealisticScene({
       <hemisphereLight args={["#dbeafd", "#807766", 0.8]} />
       <primitive object={lightTarget}/>
       <directionalLight
+        ref={sunLight}
+        key={quality}
         target={lightTarget}
         color="#fff0db"
-        intensity={2.6}
-        position={[center.x + sun.x * 60 * lightScale, sun.y * 60 * lightScale, center.z + sun.z * 60 * lightScale]}
-        castShadow={quality!=='simple'}
+        intensity={sun.y>0?2.6:0}
+        position={[center.x + sun.x * 60 * lightScale, targetHeight+sun.y * 60 * lightScale, center.z + sun.z * 60 * lightScale]}
+        castShadow={sun.y>0&&quality!=='simple'}
         shadow-mapSize={quality==='fine'?[4096,4096]:[2048,2048]}
         shadow-camera-left={-extent}
         shadow-camera-right={extent}
@@ -351,10 +375,12 @@ export function RealisticScene({
         <planeGeometry args={[Math.max(600,span*4), Math.max(600,depth*4)]} />
         <meshStandardMaterial color={groundColor} roughness={1} />
       </mesh>
+      {quality==='fine'&&<mesh position={[center.x,-3.5,center.z]} rotation={[-Math.PI/2,0,0]} receiveShadow><planeGeometry args={[span+18,depth+18]}/><meshStandardMaterial map={resources.groundMap} roughness={.94}/></mesh>}
       {surfaces.map(r=><group key={r.id} position={[r.x,0,r.z]} rotation={[0,r.yaw,0]}>
-        {r.pitch?<PitchedMesh site={r}/>:<><mesh position={[0,(r.flatHeight??3.5)/2-3.5,0]} castShadow receiveShadow><boxGeometry args={[r.width,r.flatHeight??3.5,r.depth]}/><meshStandardMaterial color="#c3c1b8" roughness={.9}/></mesh>
-        <mesh rotation={[-Math.PI/2,0,0]} position={[0,(r.flatHeight??3.5)-3.5+.001,0]} receiveShadow><planeGeometry args={[r.width,r.depth]}/><meshStandardMaterial map={resources.roofMap} roughness={.93} bumpMap={resources.roofMap} bumpScale={.015}/></mesh>
-        {[[0,-r.depth/2-.1,r.width+.4,.2],[0,r.depth/2+.1,r.width+.4,.2],[-r.width/2-.1,0,.2,r.depth],[r.width/2+.1,0,.2,r.depth]].map(([x,z,w,d],i)=><mesh key={i} position={[x,(r.flatHeight??3.5)-3.5+r.wallHeight/2,z]} castShadow receiveShadow><boxGeometry args={[w,Math.max(.001,r.wallHeight),d]}/><meshStandardMaterial color="#b9bebc" roughness={.8}/></mesh>)}
+        {r.pitch?<PitchedMesh site={r} northAngle={northAngle}/>:<><mesh position={[0,(r.flatHeight??3.5)/2-3.5,0]} castShadow receiveShadow><FootprintGeometry roof={r} height={r.flatHeight??3.5}/>{quality==='fine'?(r.outline?<DeliveryPbr kind="wall" width={1} height={1}/>:<DeliveryWall width={r.width} depth={r.depth} height={r.flatHeight??3.5}/>):<meshStandardMaterial color="#c3c1b8" roughness={.9}/>}</mesh>
+        <mesh rotation={[-Math.PI/2,0,0]} position={[0,(r.flatHeight??3.5)-3.5+.001,0]} receiveShadow><FootprintGeometry roof={r} plane/><meshStandardMaterial map={resources.roofMap} roughness={.93} bumpMap={resources.roofMap} bumpScale={quality==='fine'?.001:.015}/></mesh>
+{quality==='fine'&&!r.outline&&<FlatFacade width={r.width} depth={r.depth} height={r.flatHeight??3.5} yaw={r.yaw} northAngle={northAngle}/>}
+{parapets(r,r.wallHeight).map(w=><mesh key={w.id} rotation={[0,w.yaw,0]} position={[w.x,(r.flatHeight??3.5)-3.5+w.height/2,w.z]} castShadow receiveShadow><boxGeometry args={[w.width,Math.max(.001,w.height),w.depth]}/><meshStandardMaterial color="#b9bebc" roughness={.8}/></mesh>)}
       </>} </group>)}
       <Instances data={data.frames} material={resources.aluminum} />
       <Instances

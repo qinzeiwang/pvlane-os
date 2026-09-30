@@ -1,3 +1,5 @@
+import {readModuleLibrary} from './saved-module-library';
+import {buildingTop} from './building-top';
 import { roofHeight, type RoofPitch } from './pitched-roof';
 import { useState, type SetStateAction } from 'react';
 import { defaultModule, roof as defaultRoof, type ModuleSpec, type PVArray, type Obstacle, type Point, type Rect, corners } from './domain';
@@ -7,7 +9,7 @@ export type RoofDesign = {
   northAngle?:number;
   pitch?:RoofPitch; flatHeight?:number;
   id:string; name:string; x:number; z:number; yaw:number;
-  roof:{width:number;depth:number}; moduleId?:string; moduleSpec:ModuleSpec; layoutOptions:LayoutOptions;
+  roof:import("./polygon").Footprint; moduleId?:string; moduleSpec:ModuleSpec; layoutOptions:LayoutOptions;
   wallHeight:number; obstacles:Obstacle[]; arrays:PVArray[];
   layoutSignature:string; layoutMessage:string; previous:PVArray[]|null;
 };
@@ -19,10 +21,10 @@ export function roofFromPrevious(previous:RoofDesign,name:string):RoofDesign {
 export const roofRect = (r:RoofDesign):Rect => ({x:r.x,z:r.z,yaw:r.yaw,...r.roof});
 export function toWorld(p:Point,r:Pick<RoofDesign,'x'|'z'|'yaw'>):Point {const c=Math.cos(r.yaw),s=Math.sin(r.yaw);return {x:r.x+p.x*c+p.z*s,z:r.z-p.x*s+p.z*c};}
 export function toLocal(p:Point,r:Pick<RoofDesign,'x'|'z'|'yaw'>):Point {const c=Math.cos(r.yaw),s=Math.sin(r.yaw),x=p.x-r.x,z=p.z-r.z;return {x:x*c-z*s,z:x*s+z*c};}
-export const worldArray = (a:PVArray,r:RoofDesign):PVArray => ({...a,...toWorld(a,r),id:`${r.id}/${a.id}`,azimuth:a.azimuth-r.yaw*180/Math.PI,...(!r.pitch?{elevation:(r.flatHeight??3.5)-3.5}:{})});
+export const worldArray = (a:PVArray,r:RoofDesign):PVArray => ({...a,...toWorld(a,r),id:`${r.id}/${a.id}`,hostObstacleId:a.hostObstacleId?`${r.id}/${a.hostObstacleId}`:undefined,azimuth:a.azimuth-r.yaw*180/Math.PI,...(!r.pitch?{elevation:(a.elevation??0)+(r.flatHeight??3.5)-3.5}:{})});
 export function worldObstacle(o:Obstacle,r:RoofDesign):Obstacle {
  const heights=r.pitch?corners(o).map(p=>roofHeight(r.roof,r.pitch!,p.x,p.z)):[(r.flatHeight??3.5)-3.5];
- const bottom=Math.min(...heights),top=Math.max(...heights);
+ const bottom=Math.min(...heights),top=o.topLayout&&r.pitch?buildingTop(r.roof,r.pitch,o)-o.height:Math.max(...heights);
  return {...o,baseHeight:bottom,height:o.height+top-bottom,...toWorld(o,r),id:`${r.id}/${o.id}`,yaw:o.yaw+r.yaw};
 }
 export function projectBounds(roofs:RoofDesign[]) {
@@ -33,7 +35,7 @@ export function projectBounds(roofs:RoofDesign[]) {
 }
 export function totals(roofs:RoofDesign[]) {return roofs.reduce((s,r)=>{for(const a of r.arrays){s.count+=a.rows*a.columns;s.capacity+=a.rows*a.columns*(a.module??defaultModule).power/1000;}return s;},{count:0,capacity:0});}
 export function useRoofProject(){
- const [roofs,setRoofs]=useState<RoofDesign[]>(()=>[newRoof()]);
+ const [roofs,setRoofs]=useState<RoofDesign[]>(()=>{const library=readModuleLibrary(),item=library.items.find(i=>i.id===library.defaultId)!;return [{...newRoof(),moduleId:item.id,moduleSpec:{...item.spec}}];});
  const [activeId,setActiveId]=useState('');
  const active=roofs.find(r=>r.id===activeId)??roofs[0];
  function field<K extends keyof RoofDesign>(key:K):(value:SetStateAction<RoofDesign[K]>)=>void{return value=>setRoofs(prev=>prev.map(r=>r.id===active.id?{...r,[key]:typeof value==='function'?(value as (p:RoofDesign[K])=>RoofDesign[K])(r[key]):value}:r));}

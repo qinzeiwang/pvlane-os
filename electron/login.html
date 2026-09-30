@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PVLANE · 使用说明</title>
+  <link rel="stylesheet" href="/login.css">
+</head>
+<body>
+  <main>
+    <img src="/logo.svg" alt="PVLANE" width="196">
+    <p class="eyebrow">WINDOWS · 离线版</p>
+    <h1>使用说明与许可</h1>
+    <div class="notice">
+      <p><strong>版权与来源</strong>　版权所有 © 2026 qinzeiwang。本程序基于公开发布的 PVLANE 项目源码构建，完整许可条款见本程序随附的 <code>LICENSE.md</code>。</p>
+      <p><strong>允许用途</strong>　用于光伏项目前期屋面布置及装机量估算。个人非商业使用、商业展示及展示软件生成的报告可以直接进行。</p>
+      <p><strong>需事先授权</strong>　未经版权方书面同意，不得通过转售源码或程序、基于代码收费开发或定制、部署、托管、支持、交付代码或软件等方式获利。</p>
+      <p><strong>风险与责任</strong>　软件按现状提供。方案数据请自行核验；在法律允许范围内，作者不对使用软件或其输出产生的损失及其他问题承担责任。</p>
+    </div>
+    <p class="license-links"><button type="button" data-license="zh">查看中文许可说明</button><button type="button" data-license="en">查看英文完整条款</button></p>
+    <form id="login">
+      <div id="first-use" hidden>
+        <label for="username">首次使用：输入分配给你的用户名</label>
+        <input id="username" name="username" placeholder="PV-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false" maxlength="40">
+        <p class="hint">验证后，这台电脑的当前 Windows 用户无需再次输入。</p>
+      </div>
+      <p id="error" role="alert" aria-live="polite"></p>
+      <button id="submit" type="submit" disabled>同意并进入工作台</button>
+    </form>
+    <small>点击上方按钮并继续使用，即表示你已阅读并同意本说明及随附许可条款。</small>
+  </main>
+  <dialog id="license-dialog" aria-label="许可条款"><div class="license-heading"><strong id="license-title"></strong><button id="license-close" type="button" aria-label="关闭许可条款">关闭</button></div><pre id="license-text"></pre></dialog>
+  <script src="/login.js"></script>
+</body>
+</html>

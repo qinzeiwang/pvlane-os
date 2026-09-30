@@ -160,3 +160,35 @@ button,summary,.viewport-tools,.region-menu-items{user-select:none}
 .editor-float .region-section h2>.icon-button:is(:hover,:focus-visible)::after{left:auto;right:calc(100% + 6px);top:50%;transform:translateY(-50%)}
 @media(max-width:960px){.viewport .viewport-tools{left:auto;right:12px;top:auto;bottom:12px}.topbar .project-title{max-width:150px}.topbar{gap:12px}.top-actions{gap:3px}}
 @media(max-width:700px){.editor-float.is-collapsed{width:132px!important}.viewport-tools [data-tooltip]::after{display:none}}
+
+.roof-type-selector .region-types{display:flex}.roof-type-selector .region-types>button{flex:1;min-width:0;white-space:nowrap}.roof-type-selector .region-types>button[aria-expanded]{flex:0 0 34px}.roof-type-selector .roof-type-extra{margin-top:8px}.roof-type-selector .roof-type-extra>button{justify-content:flex-start}
+.new-region>.roof-type-selector{display:block;width:100%}.new-region .roof-type-selector .region-types{width:100%}.roof-type-selector .region-types>button[aria-expanded]{flex:0 0 auto;min-width:34px}
+.module-library-common{display:grid;gap:12px;padding-bottom:20px;margin-bottom:16px;border-bottom:1px solid var(--border,#e2e3e7)}
+.module-library-common p{margin:0;color:var(--text-muted,#71717a);font-size:13px;line-height:1.6}
+.module-library-common label{display:grid;gap:8px;font-size:13px}
+.module-library-common>div{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Action colors share the product tokens across dialogs and floating panels. */
+.project-dialog button{background:var(--pv-surface);color:var(--pv-text-secondary);border-color:var(--pv-border-strong)}
+.project-dialog .icon-button{background:transparent;color:var(--pv-text-secondary)}
+.project-dialog button.primary-action,.project-dialog.settings-dialog .settings-footer button,.project-dialog.settings-dialog .module-library-apply button[type=submit]{background:var(--pv-accent);border-color:var(--pv-accent);color:var(--pv-text-inverse)}
+.project-dialog button.primary-action:hover:not(:disabled),.project-dialog.settings-dialog .settings-footer button:hover:not(:disabled),.project-dialog.settings-dialog .module-library-apply button[type=submit]:hover:not(:disabled){background:var(--pv-accent-hover);border-color:var(--pv-accent-hover)}
+.display-popover .quality-switch button[aria-pressed=true]{background:var(--pv-accent-soft);border-color:var(--pv-accent-border);color:var(--pv-accent)}
+.display-popover :is(input,select),.image-overlay-panel .overlay-fields input{border-color:var(--pv-border-strong);background:var(--pv-surface);color:var(--pv-text);border-radius:var(--pv-radius-xs)}
+input[type=checkbox],input[type=range]{accent-color:var(--pv-accent)}
+.image-overlay-panel .overlay-add{background:var(--pv-accent-soft);border-color:var(--pv-accent-border);color:var(--pv-accent)}
+.image-overlay-panel .overlay-list>div.selected,.editor-float .object-row-wrap.is-selected{background:var(--pv-accent-soft);border-color:var(--pv-accent-border)}
+.image-overlay-panel .ui-icon{color:var(--pv-text-secondary)}
+.project-dialog.settings-dialog .module-library>summary{color:var(--pv-text)}
+.editor-float .object-row .object-row-delete:hover,.image-overlay-panel .overlay-delete:hover{color:var(--pv-danger);background:var(--pv-danger-soft)}
+.project-dialog-backdrop{background:rgba(25,28,38,.32);padding:12px;box-sizing:border-box}
+.project-dialog .advanced-heading .icon-button{flex-shrink:0}
+.top-actions .icon-button[aria-label]::after{left:auto;right:0;transform:none}
+
+.editor-float .layout-rules .choice-segment.six-rows{height:auto;min-height:70px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;width:100%}.editor-float .layout-rules .choice-segment.six-rows>button{min-width:0;padding:0 6px;white-space:nowrap}
+
+.module-library-apply{flex-wrap:wrap}.module-library-apply>div{display:flex;gap:8px;flex-shrink:0;margin-left:auto}
+@media(min-width:701px) and (max-width:960px){.viewport :is(.display-popover,.image-overlay-panel){top:14px;max-height:calc(100% - 72px)}}
+@media(max-width:700px){.editor-float[data-page]:not(.is-collapsed){max-height:calc(100% - 88px)}.topbar .project-title{flex:1;min-width:0}.top-actions{flex-shrink:0}}
+
+.editor-float .region-type-note{margin:8px 0 0;font-size:12px;line-height:1.6;color:var(--pv-text-secondary)}

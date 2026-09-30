@@ -12,7 +12,7 @@ export function ProjectStart({pendingDrawing,name,address,onName,onAddress,creat
   <section className="start-card">
    <span className="start-eyebrow">前期方案 · 从场地到装机量</span>
    <h1>{creating?'新建项目':'开始一个光伏方案'}</h1>
-   {creating?<><div className="start-project-fields"><label>项目名称<input aria-label="新建项目名称" value={name} onChange={e=>onName(e.target.value)} onBlur={()=>{if(!name.trim())onName('未命名项目');}}/></label><label>项目地点<input aria-label="新建项目地点" placeholder="选填" value={address} onChange={e=>onAddress(e.target.value)}/></label></div><div className="start-options">
+   {creating?<><div className="start-project-fields"><label>项目名称<input aria-label="新建项目名称" value={name} onChange={e=>onName(e.target.value)} onBlur={()=>{if(!name.trim())onName('未命名项目');}}/></label><label>项目地点<input aria-label="新建项目地点" placeholder="例如：北京市海淀区；其他地点可在设置中填写经纬度" value={address} onChange={e=>onAddress(e.target.value)}/></label></div><div className="start-options">
     <button disabled={busy} onClick={()=>pendingDrawing?onCreate('drawing'):drawingInput.current?.click()}><span className="start-option-icon open"><Icon name="folder"/></span><strong>{busy?'正在导入…':pendingDrawing?'继续标定':'导入底图'}</strong><small>{pendingDrawing??'图片 / 单页 PDF'}</small></button>
     <button disabled={busy} onClick={()=>onCreate('blank')}><span className="start-option-icon"><Icon name="frame"/></span><strong>无底图</strong><small>直接进入工作台</small></button>
    </div><div className="start-form-actions"><button disabled={busy} onClick={onBack}>返回</button></div><input ref={drawingInput} hidden type="file" accept="application/pdf,.pdf,image/png,image/jpeg,image/webp" onChange={e=>{const f=e.target.files?.[0];e.target.value='';if(f)onCreate('drawing',f);}}/></>:<div className="start-options">

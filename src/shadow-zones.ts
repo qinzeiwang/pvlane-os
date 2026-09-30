@@ -1,8 +1,9 @@
 import { corners, type Obstacle, type Rect, type Point } from './domain';
-import { winterSun } from './solar';
+import {winterRays,type SunRay} from './solar';
 export type ShadowZone = { id: string; name: string; points: Point[]; elevation?:number; topOnly?:boolean };
-export function parapets(roof: { width: number; depth: number }, height: number): Obstacle[] {
+export function parapets(roof: import("./polygon").Footprint, height: number): Obstacle[] {
   if(height<=0)return [];
+  if(roof.outline){const p=roof.outline,sign=Math.sign(p.reduce((s,a,i)=>{const b=p[(i+1)%p.length];return s+a.x*b.z-b.x*a.z;},0));return p.map((a,i)=>{const b=p[(i+1)%p.length],dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz);return {id:`wall-${i}`,name:`女儿墙 ${i+1}`,x:(a.x+b.x)/2-sign*dz/len*.1,z:(a.z+b.z)/2+sign*dx/len*.1,width:len,depth:.2,yaw:-Math.atan2(dz,dx),height};});}
   return [
     [0, -roof.depth / 2 + .1, roof.width, .2],
     [0, roof.depth / 2 - .1, roof.width, .2],
@@ -29,7 +30,7 @@ export function insideConvex(p: Point, points: Point[]) {
   return points.length >= 3 && points.every((a, i) => cross(a, points[(i + 1) % points.length], p) >= -EPS);
 }
 // Sutherland-Hodgman clipping; clipping a convex hull retains convexity.
-export function clipRoof(points: Point[], roof: { width: number; depth: number }) {
+export function clipRoof(points: Point[], roof: import("./polygon").Footprint) {
   for (const [axis, sign, bound] of [['x', 1, roof.width / 2], ['x', -1, roof.width / 2], ['z', 1, roof.depth / 2], ['z', -1, roof.depth / 2]] as const) {
     const result: Point[] = [];
     points.forEach((a, i) => {
@@ -57,18 +58,18 @@ export function hitsShadow(rect: Rect, zone: ShadowZone) {
   }
   return true;
 }
-export function shadowZones(roof: { width: number; depth: number }, objects: Obstacle[], wallHeight: number, roofYaw = 0): ShadowZone[] {
+export function shadowZones(roof: import("./polygon").Footprint, objects: Obstacle[], wallHeight: number, roofYaw = 0, rays:readonly SunRay[]=winterRays()): ShadowZone[] {
+  const daylight=rays.filter(s=>s.y>1e-6);if(!daylight.length)return [];
   return [...objects.filter(o=>o.kind!=="keepout"), ...parapets(roof, wallHeight)].flatMap(o => {
     const base = corners(o);
-    const projected = [9, 15].flatMap(hour => {
-      const worldSun = winterSun(hour), c=Math.cos(roofYaw), s=Math.sin(roofYaw);
+    const projected = daylight.flatMap(worldSun => {
+      const c=Math.cos(roofYaw), s=Math.sin(roofYaw);
       const sun={x:worldSun.x*c-worldSun.z*s,y:worldSun.y,z:worldSun.x*s+worldSun.z*c};
       return base.map(p => ({ x: p.x - o.height * sun.x / sun.y, z: p.z - o.height * sun.z / sun.y }));
     });
-    // Endpoint top-corner projections plus original footprint form the sector-like hull.
-    // Valid for the fixed Beijing winter interval; intermediate rays lie in this hull.
+    // Instantaneous shadow, or conservative hull of the sampled design interval.
     const points = clipRoof(convexHull([...base, ...projected]), roof);
     if (points.length < 3) return [];
-    return [{ id: `shadow-${o.id}`, name: `${o.name}时段阴影包络`, points }];
+    return [{ id: `shadow-${o.id}`, name: `${o.name}${rays.length===1?"当前时刻阴影":"冬至时段阴影包络"}`, points }];
   });
 }

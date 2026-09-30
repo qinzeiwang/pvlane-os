@@ -1,7 +1,10 @@
+import {locationNote} from './location-presets';
+import {SunDateTime} from './sun-controls';
+import type {SunSettings} from './sun-position';
 import type {PerformanceReport} from './render-options';
 import {Icon} from './workbench-ui';
 
-type Props={
+type Props={sunSettings:SunSettings;onSunSettings:(v:SunSettings)=>void;shadowMode:"current"|"winter";onShadowMode:(v:"current"|"winter")=>void;
  backgroundColor:string;groundColor:string;quality:import('./render-options').RenderQuality;guides:boolean;stress:boolean;running:boolean;
  progress:string;report:PerformanceReport|null;count:number;
  solarHour:number;showShadows:boolean;onSolarHour:(value:number)=>void;onShowShadows:(value:boolean)=>void;
@@ -13,7 +16,8 @@ export function DisplayPopover(props:Props){
  const {backgroundColor,groundColor,quality,guides,stress,running,progress,report,count}=props;
  return <section className="display-popover" aria-label="显示设置">
   <header><strong>显示设置</strong><button className="icon-button" aria-label="关闭显示设置" onClick={props.onClose}><Icon name="close"/></button></header>
-  <label className="display-sun">冬至真太阳时 <span>{props.solarHour}:00</span><input aria-label="三维真太阳时" type="range" min="9" max="15" step="1" value={props.solarHour} onChange={e=>props.onSolarHour(Number(e.target.value))}/></label>
+  <p className="sun-readout">{locationNote(props.sunSettings)}</p><SunDateTime value={props.sunSettings} onChange={props.onSunSettings}/>
+  <label>阴影显示<select aria-label="阴影显示" value={props.shadowMode} onChange={e=>props.onShadowMode(e.target.value as 'current'|'winter')}><option value="current">当前日期与时间</option><option value="winter">所在地冬至校核</option></select></label><p className="sun-readout">当前阴影随地点、日期时间及北向变化；自动布置按所在地冬至 9–15 时真太阳时校核。</p>{Math.abs(props.sunSettings.latitude)>=66.5&&<p className="sun-readout">所在地冬至可能为极夜，当前冬至校核不适用，请另定设计时段。</p>}
   <label className="checkline"><input type="checkbox" checked={props.showShadows} onChange={e=>props.onShowShadows(e.target.checked)}/>显示阴影禁布区</label>
   <div className="color-presets"><button onClick={()=>{props.onBackground('#dce5ec');props.onGround('#c7cccb');}}>冷灰</button><button onClick={()=>{props.onBackground('#ede8dd');props.onGround('#cfc3a8');}}>暖灰</button></div>
   <div className="scene-colors"><label>背景<input aria-label="背景颜色" type="color" value={backgroundColor} onInput={e=>props.onBackground(e.currentTarget.value)} onChange={e=>props.onBackground(e.target.value)}/></label><label>地面<input aria-label="地面颜色" type="color" value={groundColor} onInput={e=>props.onGround(e.currentTarget.value)} onChange={e=>props.onGround(e.target.value)}/></label><button className="icon-button" aria-label="恢复默认颜色" title="恢复默认颜色" onClick={()=>{props.onBackground('#dce5ec');props.onGround('#c7cccb');}}><Icon name="reset"/></button></div>

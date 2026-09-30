@@ -10,3 +10,10 @@ coverage/
 *.pem
 *.p12
 *.pfx
+
+# Local desktop distribution and owner-only access list
+用户名.txt
+说明.txt
+.desktop-private/
+.desktop-stage/
+release/

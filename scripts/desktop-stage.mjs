@@ -1,0 +1,17 @@
+import { mkdir, cp, readFile, writeFile, rm } from 'node:fs/promises';
+import path from 'node:path';
+const stage = path.resolve('.desktop-stage');
+const pkg = JSON.parse(await readFile('package.json','utf8'));
+const users = JSON.parse(await readFile('.desktop-private/allowed-users.json','utf8'));
+if (users.hashes.length !== 20 || new Set(users.hashes).size !== 20) throw new Error('Expected 20 unique offline usernames');
+if (path.dirname(stage) !== process.cwd() || path.basename(stage) !== '.desktop-stage') throw new Error('Invalid staging directory');
+await rm(stage,{recursive:true,force:true});
+await mkdir(path.join(stage,'electron'),{recursive:true});
+await cp('dist',path.join(stage,'dist'),{recursive:true});
+for (const file of ['main.cjs','preload.cjs','access.cjs','activation.cjs','login.html','login.css','login.js']) await cp(path.join('electron',file),path.join(stage,'electron',file));
+await cp('src/assets/pvlane-logo.svg',path.join(stage,'electron/logo.svg'));
+await cp('.desktop-private/allowed-users.json',path.join(stage,'electron/allowed-users.json'));
+for (const file of ['LICENSE.md','LICENSE.zh-CN.md','THIRD-PARTY-NOTICES.md']) await cp(file,path.join(stage,file));
+await cp('docs/font-licenses',path.join(stage,'font-licenses'),{recursive:true});
+await writeFile(path.join(stage,'package.json'),JSON.stringify({name:'pvlane-offline',version:pkg.version,description:'PVLANE offline roof layout and capacity reporting',author:'qinzeiwang',license:'SEE LICENSE IN LICENSE.md',main:'electron/main.cjs'},null,2));
+console.log('Desktop staging complete. Username list excluded.');

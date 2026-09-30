@@ -1,0 +1,24 @@
+.location-choice{margin:12px 0;font-size:13px;line-height:1.6;min-width:0}
+.location-choice .settings-note{margin:8px 0;color:var(--pv-text-secondary,#68756e)}
+.location-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.location-choice button{padding:6px 10px;border:1px solid var(--pv-border,#d6ddd8);border-radius:var(--pv-radius-xs,4px);background:var(--pv-surface,#fff);color:var(--pv-accent,#416e58);font:inherit;cursor:pointer}
+.location-choice button:disabled{opacity:.45;cursor:default}
+.location-choice .settings-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+.location-choice label{display:flex;flex-direction:column;gap:6px;min-width:0}
+.location-choice input{width:100%;min-width:0;box-sizing:border-box;height:36px;padding:6px 10px;border:1px solid var(--pv-border,#d6ddd8);border-radius:var(--pv-radius-xs,4px);font:inherit}
+.location-choice summary{cursor:pointer;color:var(--pv-text-secondary,#68756e);padding:8px 0}
+.city-reference{max-height:280px;overflow:auto;border:1px solid var(--pv-border,#d6ddd8);border-radius:var(--pv-radius-xs,4px)}
+.city-reference table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+.city-reference th,.city-reference td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--pv-border,#d6ddd8);white-space:nowrap}
+.city-reference th{position:sticky;top:0;background:var(--pv-surface,#fff)}
+.city-reference button{padding:3px 6px}
+@media(max-width:520px){.location-choice .settings-fields{grid-template-columns:1fr}.city-reference th,.city-reference td{padding:6px 4px}}
+
+.location-readout{font-size:11px;line-height:1.6;color:var(--pv-text-secondary,#68756e);margin:8px 0;overflow-wrap:anywhere}
+
+.location-warning,.shadow-alert{border:1px solid #d4a354;border-left:3px solid #b97c1b;background:#fff8e9;color:#795010;border-radius:var(--pv-radius-xs,4px);padding:10px 12px;line-height:1.6;font-size:12px;overflow-wrap:anywhere}
+.shadow-alert{margin:10px 14px;flex:0 0 auto}
+.shadow-alert strong{font-size:13px;font-weight:600}
+.shadow-alert p{margin:5px 0}
+.shadow-alert button{border:1px solid #d4a354;border-radius:var(--pv-radius-xs,4px);padding:6px 10px;background:#fff;color:#795010;font:inherit;margin-top:4px;cursor:pointer}
+.blender-panel .shadow-alert{margin:12px 0}

@@ -1,3 +1,4 @@
+import {winterRays} from './solar';
 import {pitchedShadowZones} from './pitched-shadow-zones';
 import {hitsShadow} from './shadow-zones';
 import {corners,initial,overlaps,validModule,defaultModule,type Obstacle,type PVArray} from './domain';
@@ -8,8 +9,8 @@ type Band={z:number;rows:number;depth:number};
 
 export function standardPitchedLayout(roof:{width:number;depth:number},objects:Obstacle[],o:LayoutOptions){
  const p=o.pitch!,m=o.module??defaultModule,rows=o.tableRows??1,limit=o.limit??5000;
- if(!validPitch(p)||!validModule(m)||![roof.width,roof.depth,o.edge,o.gap,o.rowGap??0].every(Number.isFinite)||roof.width<=0||roof.depth<=0||o.edge<0||o.gap<0||(o.rowGap??0)<0||!Number.isInteger(rows)||rows<1||rows>3||!Number.isInteger(o.maxColumns)||o.maxColumns<1||o.maxColumns>100||!Number.isInteger(limit)||limit<0||limit>5000)throw new Error('标准组件坡面布置参数无效');
- const forbidden=pitchedShadowZones(roof,objects,p,o.roofYaw??0);
+ if(!validPitch(p)||!validModule(m)||![roof.width,roof.depth,o.edge,o.gap,o.rowGap??0].every(Number.isFinite)||roof.width<=0||roof.depth<=0||o.edge<0||o.gap<0||(o.rowGap??0)<0||!Number.isInteger(rows)||rows<1||rows>(p.kind==='gable'?6:3)||!Number.isInteger(o.maxColumns)||o.maxColumns<1||o.maxColumns>100||!Number.isInteger(limit)||limit<0||limit>5000)throw new Error('标准组件坡面布置参数无效');
+ const forbidden=pitchedShadowZones(roof,objects,p,o.roofYaw??0,winterRays(o.shadowLatitude));
  const turned=!o.portrait,local=(x:number,z:number)=>turned?{x:-z,z:x}:{x,z};
  const roofW=turned?roof.depth:roof.width,roofD=turned?roof.width:roof.depth,g=roofGradient(p,0,0);
  const kx=1/Math.sqrt(1+(turned?g.sz:g.sx)**2),kz=1/Math.sqrt(1+(turned?g.sx:g.sz)**2),w=m.width*kx;

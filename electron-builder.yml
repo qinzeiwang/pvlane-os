@@ -1,0 +1,30 @@
+appId: com.qinzeiwang.pvlane.offline
+productName: PVLANE Offline
+electronVersion: 44.4.3
+directories:
+  app: .desktop-stage
+  output: release
+files:
+  - dist/**/*
+  - electron/**/*
+  - package.json
+  - LICENSE*.md
+  - THIRD-PARTY-NOTICES.md
+  - font-licenses/**/*
+  - '!node_modules/**/*'
+asar: true
+npmRebuild: false
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: zip
+      arch: [x64]
+  signAndEditExecutable: false
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  artifactName: PVLANE-Offline-${version}-Windows-x64-Setup.${ext}
+artifactName: PVLANE-Offline-${version}-Windows-x64.${ext}

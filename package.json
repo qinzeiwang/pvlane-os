@@ -1,6 +1,6 @@
 {
   "name": "pvlane",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "license": "SEE LICENSE IN LICENSE.md",
   "engines": {
@@ -14,7 +14,12 @@
     "test": "vitest run",
     "prepare:pdf": "node scripts/prepare-pdf.mjs",
     "predev": "npm run prepare:pdf",
-    "prebuild": "npm run prepare:pdf"
+    "prebuild": "npm run prepare:pdf",
+    "desktop:users": "node scripts/desktop-users.mjs",
+    "desktop:stage": "npm run build && node scripts/desktop-stage.mjs",
+    "desktop:pack": "npm run desktop:stage && electron-builder --win --publish never",
+    "desktop:start": "electron .desktop-stage",
+    "desktop:test": "node --test electron/*.check.cjs"
   },
   "dependencies": {
     "@babylonjs/core": "^8.0.0",
@@ -32,6 +37,8 @@
     "@types/react-dom": "^19.2.0",
     "@types/three": "^0.180.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "electron": "44.4.3",
+    "electron-builder": "26.15.3",
     "typescript": "~5.9.0",
     "vite": "^7.0.0",
     "vitest": "^5.0.0"

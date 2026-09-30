@@ -1,0 +1,24 @@
+import {describe,it,expect} from 'vitest';
+import {polygonRect,validOutline,footprintArea,polygonContains} from './polygon';
+import {autoLayout} from './auto-layout';
+import {corners,footprint,defaultModule,outsideRoof,overlaps} from './domain';
+import {newRoof,roofRect,toWorld} from './roof-project';
+import {parseWorkspace,type WorkspaceFile} from './workspace-file';
+import {reshapeRegion} from './reshape-region';
+import {containsRect} from './drawing-geometry';
+import {footprintVertices} from './footprint-mesh';
+import {parapets} from './shadow-zones';
+import {applyRegionForm} from './region-form';
+const points=[{x:0,z:0},{x:40,z:0},{x:40,z:15},{x:15,z:15},{x:15,z:30},{x:0,z:30}];
+const rect=polygonRect(points),roof={width:rect.width,depth:rect.depth,outline:rect.outline};
+const options={portrait:true,tilt:10,edge:.5,gap:1,maxColumns:10,wallHeight:0,spacingMode:'manual' as const,rowGap:1};
+describe('flat polygon roof',()=>{
+ it('normalizes and measures concave footprint',()=>{expect(validOutline(roof)).toBe(true);expect(footprintArea(roof)).toBe(825);expect(corners(rect)).toEqual(points);});
+ it('rejects crossed, repeated and degenerate outlines',()=>{expect(()=>polygonRect([points[0],points[2],points[1],points[3]])).toThrow();expect(()=>polygonRect([points[0],points[1],points[0],points[3]])).toThrow();expect(()=>polygonRect(points.slice(0,2))).toThrow();});
+ it('rejects a rectangle spanning a concave notch even when corners are inside',()=>{const u=[{x:0,z:0},{x:10,z:0},{x:10,z:10},{x:7,z:10},{x:7,z:3},{x:3,z:3},{x:3,z:10},{x:0,z:10}];expect(polygonContains(u,[{x:1,z:1},{x:9,z:1},{x:9,z:9},{x:1,z:9}])).toBe(false);});
+ for(const direction of [0,1,2,3])it(`keeps panels and clearance inside concave roof direction ${direction}`,()=>{const result=autoLayout(roof,[],{...options,direction,module:defaultModule});expect(result.count).toBeGreaterThan(0);for(const a of result.arrays){expect(polygonContains(roof.outline,corners(footprint(a)),options.edge)).toBe(true);expect(outsideRoof(footprint(a),roof)).toBe(false);}});
+ it('round trips outline and rejects pitched polygon imports',()=>{const r={...newRoof(),...rect,roof};const p:WorkspaceFile={version:3,name:'L',roofs:[r],activeId:r.id,solarHour:11,backgroundColor:'#ffffff',groundColor:'#cccccc'};expect(parseWorkspace(JSON.stringify(p)).roofs[0].roof).toEqual(roof);expect(()=>applyRegionForm(r,'gable')).toThrow();r.pitch={kind:'gable',axis:'z',high:1,percent:10,eave:5};expect(()=>parseWorkspace(JSON.stringify(p))).toThrow();});
+ it('uses the rotated polygon for obstacles and clears obsolete layout on reshape',()=>{const r={...newRoof(),x:50,z:20,yaw:.4,roof};const p=toWorld({x:12,z:8},r);expect(containsRect(roofRect(r),{...p,width:1,depth:1,yaw:.4})).toBe(false);const next=reshapeRegion([r],r.id,rect)[0];expect(next.roof.outline).toEqual(rect.outline);expect(next.arrays).toEqual([]);});
+ it('allows a separate roof in the notch without false overlap',()=>{expect(overlaps(rect,{x:30,z:24,width:8,depth:8,yaw:0})).toBe(false);expect(overlaps(rect,rect)).toBe(true);expect(overlaps(rect,{x:40.5,z:8,width:1,depth:4,yaw:0})).toBe(false);});
+ it('triangulates exact area without filling the notch',()=>{const v=footprintVertices(roof);let area=0;for(let i=0;i<v.length;i+=9)area+=Math.abs((v[i+3]-v[i])*(v[i+8]-v[i+2])-(v[i+5]-v[i+2])*(v[i+6]-v[i]))/2;expect(area).toBe(825);expect(parapets(roof,.32)).toHaveLength(6);});
+});

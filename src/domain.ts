@@ -1,3 +1,4 @@
+import {polygonContains,polygonsOverlap} from './polygon';
 export type ModuleSpec = { kind?: "standard"; width: number; length: number; power: number; gap: number };
 export const defaultModule: ModuleSpec = { kind:"standard", width: 1.134, length: 2.278, power: 550, gap: .02 };
 export const validModule = (m: ModuleSpec) => (m.kind===undefined||["standard"].includes(m.kind)) && [m.width,m.length,m.power,m.gap].every(Number.isFinite) && m.width >= .2 && m.width <= 5 && m.length >= .2 && m.length <= 5 && m.power > 0 && m.power <= 2000 && m.gap >= 0 && m.gap <= 2;
@@ -64,6 +65,7 @@ export function geometry(p: Params) {
 export function valid(p: Params) {
   return (
     [p.x, p.z, p.rows, p.columns, p.tilt, p.azimuth].every(Number.isFinite) &&
+    (p.elevation===undefined||Number.isFinite(p.elevation)) &&
     ((p as unknown as {mounting?:unknown}).mounting===undefined) &&
     (!p.surface || [p.surface.sx,p.surface.sz,p.surface.height].every(Number.isFinite) && Math.abs(p.surface.sx)<=1 && Math.abs(p.surface.sz)<=1) &&
     typeof p.portrait === "boolean" &&
@@ -79,10 +81,10 @@ export function valid(p: Params) {
     p.tilt <= 60
   );
 }
-export type PVArray = Params & { id: string; name: string };
+export type PVArray = Params & { hostObstacleId?:string; id: string; name: string };
 export type Point = { x: number; z: number };
-export type Rect = Point & { width: number; depth: number; yaw: number };
-export type Obstacle = Rect & { kind?:"obstacle"|"keepout"; baseHeight?:number; id: string; name: string; height: number };
+export type Rect = Point & { width: number; depth: number; yaw: number; outline?:Point[] };
+export type Obstacle = Rect & { topLayout?:{enabled:boolean;tilt:number;edge:number}; kind?:"obstacle"|"keepout"; baseHeight?:number; id: string; name: string; height: number };
 export const roof = { width: 30, depth: 20 };
 export const obstacles: Obstacle[] = [
   {
@@ -117,6 +119,7 @@ export function footprint(p: Params): Rect {
 export function corners(r: Rect): Point[] {
   const c = Math.cos(r.yaw),
     s = Math.sin(r.yaw);
+  if(r.outline)return r.outline.map(({x,z})=>({x:r.x+x*c+z*s,z:r.z-x*s+z*c}));
   return [
     [-1, -1],
     [1, -1],
@@ -130,6 +133,7 @@ export function corners(r: Rect): Point[] {
 }
 const EPS = 1e-7; // metres; touching edges are allowed, not positive-area overlap.
 export function overlaps(a: Rect, b: Rect): boolean {
+  if(a.outline||b.outline)return polygonsOverlap(corners(a),corners(b));
   const ac = corners(a),
     bc = corners(b);
   for (const r of [a, b])
@@ -148,7 +152,8 @@ export function overlaps(a: Rect, b: Rect): boolean {
     }
   return true;
 }
-export const outsideRoof = (r: Rect, boundary = roof) =>
+export const outsideRoof = (r: Rect, boundary:import("./polygon").Footprint = roof) =>
+  boundary.outline?!polygonContains(boundary.outline,corners(r)):
   corners(r).some(
     (p) =>
       Math.abs(p.x) > boundary.width / 2 + EPS ||
@@ -173,8 +178,9 @@ export function detect(
         ids: [a.id],
         text: `${a.name} 超出屋面边界`,
       });
+    if(a.hostObstacleId){const host=objects.find(o=>o.id===a.hostObstacleId);if(!host?.topLayout?.enabled||corners(rects[i]).some(p=>{const x=p.x-host.x,z=p.z-host.z,c=Math.cos(host.yaw),s=Math.sin(host.yaw);return Math.abs(x*c-z*s)>host.width/2+1e-7||Math.abs(x*s+z*c)>host.depth/2+1e-7;}))issues.push({kind:'boundary',ids:[a.id],text:`${a.name} 超出附属建筑顶部或顶部布置已关闭`});}
     objects.forEach((o) => {
-      if (overlaps(rects[i], o))
+      if (a.hostObstacleId!==o.id && overlaps(rects[i], o))
         issues.push({
           kind: "obstacle",
           ids: [a.id, o.id],
@@ -282,7 +288,7 @@ export function bindPointer(
     if (drag && canvas.hasPointerCapture(drag.id))
       canvas.releasePointerCapture(drag.id);
     drag = null;
-    canvas.style.cursor = "grab";
+    canvas.style.cursor = api.panMode?.() ? "grab" : "default";
   };
   const down = (e: PointerEvent) => {
     if (drag || ![0, 1].includes(e.button)) return;
@@ -336,6 +342,7 @@ export function bindPointer(
   };
   const context = (e: MouseEvent) => {e.preventDefault();if(api.mode()==='top'){const id=api.hit(e.clientX,e.clientY);if(id)api.context?.(id,e.clientX,e.clientY);}};
   const doubleClick=(e:MouseEvent)=>{if(api.mode()==='top'){const id=api.hit(e.clientX,e.clientY);if(id&&!id.startsWith('@p/')&&!id.startsWith('@d/')&&!id.startsWith('@i/')){end();api.edit?.(id);}}};
+  end();
   canvas.addEventListener("pointerdown", down);
   canvas.addEventListener("pointermove", move);
   canvas.addEventListener("pointerup", end);

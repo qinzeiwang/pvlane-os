@@ -60,7 +60,7 @@
 .editor-float .region-section{border-bottom-color:#c9dbe680}
 .editor-float .region-objects h2{font-size:12px;letter-spacing:0}
 .editor-float .object-edit-status .finish-object-edit{display:flex;align-items:center;gap:4px}
-.new-region>div:last-child button:last-child{background:#397fae;border:1px solid #397fae;color:#fff}
+
 
 /* Layout inspector follows the same section hierarchy as Region. */
 .editor-float .layout-inspector h2{font-size:12px;font-weight:600;line-height:24px;color:var(--text-secondary);margin:0 0 8px}

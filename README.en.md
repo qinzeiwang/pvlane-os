@@ -6,6 +6,9 @@ PVLANE is a browser-based tool for early-stage photovoltaic design, including ro
 
 ## Features
 
+- Polygon flat roofs, including concave outlines.
+- Project locations and manual latitude/longitude; current-time shadows and local winter-solstice checks.
+- PV modules on flat auxiliary building tops, such as rooftop monitors and towers, with independent tilt and edge clearance.
 - Import PNG, JPG, WebP, or single-page PDF base drawings; calibrate scale and set north, or start without a drawing.
 - Model flat, mono-pitch, and gable roofs; add obstacles and keep-out zones.
 - Manage standard PV modules, configure direction and spacing, and run automatic layout.
@@ -15,7 +18,7 @@ PVLANE is a browser-based tool for early-stage photovoltaic design, including ro
 
 ## Report definitions
 
-Roof area is the developed surface area and is not reduced by obstacles or keep-out zones. PV occupied area is the sum of module projection areas on the roof and excludes gaps and access aisles. Capacity uses the rated power of the modules actually placed. A calculated roof that fits no modules may report zero; an uncalculated or outdated roof must be updated first.
+Roof area uses the actual outline and developed surface area, without subtracting auxiliary buildings, obstacles, or keep-out zones. Auxiliary top area is not added again. PV occupied area is the sum of module projection areas on the roof and excludes gaps and access aisles. Capacity uses the rated power of the modules actually placed, including auxiliary top modules. A calculated roof that fits no modules may report zero; an uncalculated or outdated roof must be updated first.
 
 ## Local installation
 
@@ -38,11 +41,13 @@ Open the address printed in the terminal, normally `http://127.0.0.1:5175`. `npm
 
 Chrome or Edge is required for choosing where to save project and report files.
 
+The Windows offline package does not require Node.js or Git. Enter the assigned username once per Windows user profile; the usage and license notice appears at every launch. See the [Windows offline guide](docs/WINDOWS-OFFLINE.en.md).
+
 ## Quick workflow
 
 1. Select **New Project**. Start without a base drawing, or import a PNG, JPG, WebP, or single-page PDF.
-2. With a drawing, calibrate a known distance, confirm north, and define a rectangular roof with three points. Without a drawing, enter the roof width and length.
-3. Choose a flat, mono-pitch, or gable roof and add obstacles or keep-out zones as needed.
+2. With a drawing, calibrate a known distance, confirm north, and define a rectangular roof with three points. Without a drawing, use the blank canvas. Flat roofs also support Polyline drawing: click the corners and close the outline.
+3. Enter a recognized city or apply manual coordinates under System Settings. Add obstacles, keep-out zones, or auxiliary buildings. Select a building to enable modules on its top.
 4. In **Layout**, confirm the module and spacing settings, then lay out the current roof or all roofs.
 5. Check boundaries and conflicts in 2D, then inspect the result in 3D.
 6. Save the project JSON. When every roof is up to date, preview and save the installed-capacity report.
@@ -50,6 +55,8 @@ Chrome or Edge is required for choosing where to save project and report files.
 See the [English User Guide](docs/USER-GUIDE.en.md) for complete instructions and troubleshooting. The application interface is currently in Simplified Chinese.
 
 See the [Changelog](CHANGELOG.en.md) for version history.
+
+For changes since the previous GitHub version (0.2.0), see the [0.3.0 update notes](docs/UPDATE-0.3.0.en.md).
 
 ## Development checks
 
@@ -60,6 +67,8 @@ npm run preview -- --port 4175
 ```
 
 Read the [Contributing Guide](CONTRIBUTING.en.md) before submitting changes. Report security issues according to [SECURITY.md](SECURITY.md).
+
+Displayed shadows follow coordinates, date, time, UTC offset, and drawing north. Automatic layout checks the local winter-solstice envelope sampled from 09:00 to 15:00 true solar time; latitude affects design spacing and shadows. Changing display time does not change that design interval. Automatic checking rejects polar-night locations. Auxiliary-top modules are counted once under their parent roof.
 
 ## Project compatibility
 

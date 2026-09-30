@@ -21,6 +21,7 @@ for(const kind of ['flat','single','gable'] as const){
     r.arrays=autoLayout(r.roof,[],{...r.layoutOptions,pitch:r.pitch,module:r.moduleSpec}).arrays;
     const restored=parseWorkspace(JSON.stringify({version:3,name:'边界测试',roofs:[r],activeId:r.id,solarHour:9,backgroundColor:'#ffffff',groundColor:'#dddddd'}));
     expect(restored.roofs[0].arrays).toEqual(r.arrays);
-    expect(restored.roofs[0].layoutOptions).toEqual(r.layoutOptions);
+    expect(restored.roofs[0].layoutOptions).toEqual({...r.layoutOptions,shadowLatitude:39.75,shadowIgnored:true});
+    expect(restored.sunSettings?.locationMode).toBe("unresolved");
   });
 }

@@ -1,3 +1,4 @@
+import {footprintArea} from './polygon';
 import {defaultModule,geometry,type PVArray,type ModuleSpec} from './domain';
 import {worldArray,type RoofDesign} from './roof-project';
 export function panelOrientation(a:PVArray){
@@ -10,8 +11,8 @@ export function projectStatistics(roofs:RoofDesign[]){
  const regions=roofs.map(r=>{
   const factor=Math.sqrt(1+((r.pitch?.percent??0)/100)**2);
   let count=0,capacity=0,occupiedArea=0;
-  for(const a of r.arrays){const m=a.module??defaultModule,n=a.rows*a.columns;count+=n;capacity+=n*m.power/1000;occupiedArea+=n*m.width*m.length*panelOrientation(worldArray(a,r)).projection*factor;}
-  return {id:r.id,name:r.name,roofArea:r.roof.width*r.roof.depth*factor,count,capacity,occupiedArea};
+  for(const a of r.arrays){const m=a.module??defaultModule,n=a.rows*a.columns;count+=n;capacity+=n*m.power/1000;occupiedArea+=n*m.width*m.length*panelOrientation(worldArray(a,r)).projection*(a.hostObstacleId?1:factor);}
+  return {id:r.id,name:r.name,roofArea:footprintArea(r.roof)*factor,count,capacity,occupiedArea};
  });
  const total=regions.reduce((t,r)=>({roofArea:t.roofArea+r.roofArea,count:t.count+r.count,capacity:t.capacity+r.capacity,occupiedArea:t.occupiedArea+r.occupiedArea}),{roofArea:0,count:0,capacity:0,occupiedArea:0});
  return {regions,total};
