@@ -8,7 +8,9 @@ import type { BaseImage } from './base-image';
 import {parseModuleCatalog,sameModule,type ModuleCatalogItem} from './module-library';
 export type WorkspaceFile={version:3;sunSettings?:SunSettings;imageOverlays?:ImageOverlay[];moduleCatalog?:ModuleCatalogItem[];globalEdge?:number;name:string;address?:string;hasRegions?:boolean;roofs:RoofDesign[];activeId:string;solarHour:number;backgroundColor:string;groundColor:string;baseImage?:BaseImage};
 export function parseWorkspace(text:string):WorkspaceFile {
- const raw=JSON.parse(text);
+ let raw;
+ try{raw=JSON.parse(text);}catch{throw new Error('项目文件不是有效的 JSON，请选择完整的项目文件');}
+ if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('项目文件内容无效');
  const checkModule=(m:{kind?:string}|undefined)=>{if(m?.kind&&m.kind!=='standard')throw new Error('当前版本仅支持标准组件');};
  checkModule(raw.module);for(const r of raw.roofs??[]){checkModule(r.moduleSpec);for(const a of r.arrays??[])checkModule(a.module);}for(const a of raw.arrays??[])checkModule(a.module);for(const m of raw.moduleCatalog??[])checkModule(m?.spec);
  if(raw.version!==3){const p=parseProject(text),r={...newRoof(),northAngle:p.baseImage?.northAngle,roof:p.roof,obstacles:p.obstacles,arrays:p.arrays,moduleSpec:p.module,layoutOptions:p.rules,wallHeight:p.wallHeight};const b=p.baseImage;

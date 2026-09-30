@@ -16,6 +16,7 @@ const roofPaths:Record<string,string>={
  'module-direction':'M12 3 20 20 12 16 4 20Z',
  'rotate':'M19 9a7 7 0 1 0 0 6 M19 4v5h-5',
  'roof':'M3 10 12 4l9 6 M5 9v11h14V9 M9 20v-6h6v6',
+ 'polygon-roof':'M3 8 12 4l9 7-4 9H6Z',
  'flat-roof':'M3 8h18 M5 8v11h14V8',
  'single-roof':'M3 12 21 6 M5 12v7h14V7',
  'gable-roof':'M3 12 12 6l9 6 M5 11v8h14v-8',

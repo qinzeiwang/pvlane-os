@@ -27,8 +27,8 @@ Projects are not saved automatically. After important changes, use the save butt
 ## 3. Create a roof without a base drawing
 
 1. Select **New Project** and then **No Base Drawing**.
-2. Select **Add Region** and choose a flat, mono-pitch, or gable roof.
-3. Select **Start Drawing** and draw on the blank canvas. Click two endpoints and a third point for a rectangle. For flat roofs, choose **Polyline**, click successive corners, then click the starting point or **Close Roof**. Dimensions are limited to 2–200 m.
+2. Select **Add Region** and choose a flat or gable roof. Mono-pitch and polygon roofs are in the **Other Roof Types** secondary menu.
+3. Select **Start Drawing** and draw on the blank canvas. Click two endpoints and a third point for a rectangle. For irregular flat roofs, choose **Other Roof Types → Polygon Roof**, click successive corners, then click the starting point or **Close Roof**. Dimensions are limited to 2–200 m.
 4. For a flat roof, enter roof height and parapet height. For a pitched roof, enter pitch and eave height, then set the slope or ridge direction.
 5. Keep multiple roofs from overlapping.
 
@@ -56,7 +56,7 @@ Changing a roof, obstacle, module specification, or layout rule marks the existi
 
 ### Polygon roofs
 
-Flat roofs support concave polygons with 3–64 vertices. Select **Polyline** in the drawing toolbar, click corners, then close the outline. Self-intersections and overlapping edges are rejected. Drag vertices in outline editing and run layout again. Polygon roofs currently support flat roofs only.
+Flat roofs support concave polygons with 3–64 vertices. Choose **Other Roof Types → Polygon Roof** when adding a region, or **More → Polygon Roof** in the drawing toolbar. Click corners, then close the outline. Slanted edges and concave corners are supported; adjacent edges need not be perpendicular and are not snapped to horizontal or vertical axes. Self-intersections and overlapping edges are rejected. Drag vertices in outline editing and run layout again. Polygon roofs currently support flat roofs only.
 
 ### Auxiliary building tops
 
@@ -158,3 +158,5 @@ Simple, standard and fine rendering remain available. Pitched roofs use metal-ro
 - Tab / Shift+Tab moves through modal controls. Escape closes the dialog and restores focus to its opener. In the drawing editor, Escape cancels the current drawing without closing the editor.
 - When editing a small obstacle or exclusion zone, Frame selected object zooms in and Show entire drawing restores the overview. Done applies the edit; Cancel preserves the original geometry.
 - Polygon roofs currently support flat roofs. Create a rectangular region for a pitched roof. Collapse the operation panel to free canvas space in a small window.
+- Delete a region through Region management → Delete current region. Undo deletion remains in that menu even after deleting the last region; the top Undo button is also available. Recalculate if the restored layout is stale.
+- Old projects without drawings: open the blank canvas through Region management → Edit outline or an object's edit button. Metric positions and north are preserved. A failed malformed-file import leaves the current project unchanged.

@@ -17,7 +17,7 @@ This update adds location-based shadows, polygon roofs, auxiliary rooftop layout
 
 ### Roofs and auxiliary buildings
 
-- Flat roofs support polygon and concave outlines, polyline drawing, closure, vertex editing, boundary checks and actual area statistics.
+- Flat roofs support polygon and concave outlines, free drawing of slanted edges, closure, vertex editing, boundary checks and actual area statistics. Polygon and single-slope creation are grouped under Other Roof Types; the drawing toolbar places polygon drawing under More. Polygon vertices no longer snap to horizontal or vertical axes.
 - Flat tops of rooftop monitors, towers and other auxiliary buildings can carry modules with independent tilt and clearance, including related shadow checks.
 - Top modules persist with projects and undo history and count toward roof and project reports. Disabling the top layout or deleting its building removes the associated modules.
 - Gable roofs support up to six connected rows per slope instead of three. Mono-pitch roofs move to the Other roof types menu.
@@ -37,6 +37,12 @@ This update adds location-based shadows, polygon roofs, auxiliary rooftop layout
 - Improve initial modal focus, Tab / Shift+Tab cycling, background isolation, Escape dismissal and focus restoration. Escape in the drawing editor still cancels the current drawing.
 - Prevent panels from covering the toolbar in small windows; add Frame selected object for small obstacles and exclusion zones, explanatory disabled states and busy-state protection.
 
+- Fix first double-click editing of an unselected object and initialize the canvas before users can immediately drag a corner.
+- Old projects without drawings can edit and add geometry on a recovered blank canvas, preserving metric coordinates and north.
+- Undo deletion remains available after deleting the last roof and restores its objects and layout.
+- Returning before drawing calibration retains the drawing on the creation page. A new edit clears obsolete redo state, and dragging no longer selects text.
+- Malformed project files produce clear errors without replacing the current project.
+
 ## Windows offline builds
 
 Compared with the previous GitHub source, this update includes Electron configuration, installer and portable ZIP build scripts, local generation of 20 random usernames, remembered first-time verification and a usage/license notice on every launch. Desktop interfaces support native saving and PDF export.
@@ -55,7 +61,8 @@ Plaintext usernames, verification lists, installers, staging directories and loc
 
 ## Validation and documentation
 
-- All 256 functional tests across 44 files and four desktop verification tests pass. TypeScript checks and the production build pass.
+- All 326 functional tests across 45 files and four desktop verification tests pass. TypeScript checks and the production build pass.
 - Browser walkthroughs cover project creation, drawing/project imports, geometry editing, cancel/apply, undo/redo, module libraries, location/shadows, rendering, reports and a 5000-module scene. Modal keyboard behavior and 800×600 / 640×480 layouts were reviewed.
 - Native save-dialog write/cancel behavior, system printing/PDF output and the new Windows package still require real-device validation. Automated tests and Web preview do not replace these checks.
 - Updated bilingual READMEs, user guides, changelogs, Windows guides and test guides, plus third-party notices. See the [User Guide](USER-GUIDE.en.md) and [Testing Guide](TESTING.en.md).
+- The [user workflow QA record](QA-0.3.0.en.md) describes 73 UI checkpoints, targeted automated regressions and production-browser follow-up checks, with verification limits.

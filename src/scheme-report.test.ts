@@ -29,3 +29,14 @@ it('手动移动、复制造成冲突时不能生成完成报告',()=>{
  r.arrays.pop();expect(reportReadiness([r],.5)).toEqual([]);
  const other={...fixture(),id:'other',name:'其他屋面'};expect(reportReadiness([r,other],.5)).toEqual([r.name,other.name]);
 });
+
+it('即使布置签名是最新的，新增障碍物冲突仍阻止报告',()=>{
+ const r=fixture(),a=r.arrays[0];
+ r.obstacles=[{id:'new-obstacle',name:'新增障碍物',kind:'obstacle',x:a.x,z:a.z,width:2,depth:2,height:1,yaw:0}];
+ r.layoutSignature=layoutSignatureFor(r,.5);
+ expect(needsLayoutUpdate(r,.5)).toBe(false);
+ expect(reportReadiness([r],.5)).toEqual([r.name]);
+ expect(()=>schemeReport('冲突',[r],.5,'data:image/png;base64,AAAA')).toThrow('占地冲突');
+ r.obstacles=[];r.layoutSignature=layoutSignatureFor(r,.5);
+ expect(reportReadiness([r],.5)).toEqual([]);
+});

@@ -1,7 +1,16 @@
 import type { Point, Obstacle } from './domain';
+import {projectBounds,type RoofDesign} from './roof-project';
 export type BaseImage = { blank?:boolean; northAngle?:number; url: string; width: number; height: number; name: string; pdfSource?: string; metersPerPixel?: number; frame?: { x: number; y: number; width: number; height: number } };
 const transparentPixel='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
 export function blankDrawing():BaseImage{return {blank:true,url:transparentPixel,name:'无底图画布',width:10000,height:10000,metersPerPixel:.25,northAngle:0};}
+/** Adopt existing metric geometry without treating its first roof as a placeholder. */
+export function blankDrawingForRoofs(roofs:RoofDesign[],northAngle=0):BaseImage{
+ const base=blankDrawing(),bounds=projectBounds(roofs);
+ base.northAngle=northAngle;
+ base.metersPerPixel=Math.max(.25,(Math.abs(bounds.x)+bounds.width/2+100)/(base.width/2),(Math.abs(bounds.z)+bounds.depth/2+100)/(base.height/2));
+ if(roofs.length)base.frame={x:0,y:0,width:base.width,height:base.height};
+ return base;
+}
 export function blankDrawingInitialView(base:BaseImage){
   const k=base.metersPerPixel??.25,width=200/k,height=100/k;
   return {x:(base.width-width)/2,y:(base.height-height)/2,width,height};

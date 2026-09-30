@@ -11,7 +11,7 @@ Automated tests cover geometry, layouts, capacity limits, location shadows, modu
 Use desktop Chrome or Edge with synthetic drawings that contain no business data.
 
 1. Create a project without a drawing. Check the empty scene and that pan is initially off. Import PNG and single-page PDF separately; reject multi-page PDF.
-2. Calibrate distance and north. Draw rectangular and concave polygon roofs; test undoing vertices, redrawing, dragging corners, cancellation, and applying edits.
+2. Calibrate distance and north. Create irregular roofs through Other Roof Types → Polygon Roof and the drawing toolbar More menu. Draw rectangles, slanted convex polygons and concave polygons, and verify that shallow slants are not snapped to axes; test undoing vertices, redrawing, dragging corners, cancellation, and applying edits.
 3. Add, edit, double-click, and delete obstacles, exclusion zones, and auxiliary buildings. Reject objects outside the roof. Toggle top modules and verify counts.
 4. Enter a recognized city. Test invalid, empty, valid manual coordinates, and cancellation. Change lighting using the actual keyboard or native date/time picker; check solar position and shadows. Recalculate after latitude changes.
 5. Edit module specifications. Reject invalid values; prevent deleting used modules and allow deleting unused ones. Save the common library, create a new project, and verify defaults. Restore the original library after testing.
@@ -22,3 +22,5 @@ Use desktop Chrome or Edge with synthetic drawings that contain no business data
 10. Generate a report and verify roof rows and totals, the 3D picture, escaped names, HTML saving, and PDF printing.
 
 Record the revision, browser, workflows, actual results, fixes, and unverified items. Mocked save APIs do not replace manual Windows file-picker testing. A Web build does not validate an installer.
+
+See the [0.3.0 user workflow test record](QA-0.3.0.en.md) for executed scenarios, fixes and verification limits.

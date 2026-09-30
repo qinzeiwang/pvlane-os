@@ -46,7 +46,7 @@ The Windows offline package does not require Node.js or Git. Enter the assigned 
 ## Quick workflow
 
 1. Select **New Project**. Start without a base drawing, or import a PNG, JPG, WebP, or single-page PDF.
-2. With a drawing, calibrate a known distance, confirm north, and define a rectangular roof with three points. Without a drawing, use the blank canvas. Flat roofs also support Polyline drawing: click the corners and close the outline.
+2. With a drawing, calibrate a known distance, confirm north, and define a rectangular roof with three points. Without a drawing, use the blank canvas. For irregular flat roofs, choose Other Roof Types → Polygon Roof, click the corners and close the outline. Slanted edges and concave corners are supported.
 3. Enter a recognized city or apply manual coordinates under System Settings. Add obstacles, keep-out zones, or auxiliary buildings. Select a building to enable modules on its top.
 4. In **Layout**, confirm the module and spacing settings, then lay out the current roof or all roofs.
 5. Check boundaries and conflicts in 2D, then inspect the result in 3D.

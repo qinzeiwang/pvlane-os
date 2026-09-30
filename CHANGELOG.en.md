@@ -8,8 +8,10 @@ This file records notable user-facing changes.
 
 See the [0.3.0 update notes](docs/UPDATE-0.3.0.en.md) for the full comparison with GitHub 0.2.0 (`195b3ee`). This update includes source and documentation; no new Windows package has been built.
 
+- Irregular roofs support free slanted edges and concave corners; polygon creation is in a secondary menu.
+- Fix first object double-clicks and immediate corner dragging; old projects without drawings remain editable and the last roof deletion can be undone.
+- Fix calibration return, contour redo state and malformed-file errors; add bilingual guidance and complete workflow regression coverage.
 - Unify dialog, rendering selection and image action colors; fix Escape saving a roof rename and toolbar overlap in small windows; improve modal focus, cancellation of module edits and object framing.
-
 - Fix the scene remaining blank after fine materials finish loading. Reports now require layouts without boundary, overlap, or obstacle footprint conflicts.
 - Fix misplaced shadows by refreshing the shadow camera on quality changes and regenerating shadows after HDR loading.
 - Gable roofs now support six connected rows; single-slope roofs move to a secondary menu; factory and fine-rendering materials are updated; persistent common module libraries and new-project defaults are available.

@@ -22,3 +22,22 @@ describe('flat polygon roof',()=>{
  it('allows a separate roof in the notch without false overlap',()=>{expect(overlaps(rect,{x:30,z:24,width:8,depth:8,yaw:0})).toBe(false);expect(overlaps(rect,rect)).toBe(true);expect(overlaps(rect,{x:40.5,z:8,width:1,depth:4,yaw:0})).toBe(false);});
  it('triangulates exact area without filling the notch',()=>{const v=footprintVertices(roof);let area=0;for(let i=0;i<v.length;i+=9)area+=Math.abs((v[i+3]-v[i])*(v[i+8]-v[i+2])-(v[i+5]-v[i+2])*(v[i+6]-v[i]))/2;expect(area).toBe(825);expect(parapets(roof,.32)).toHaveLength(6);});
 });
+describe('irregular roofs with non-perpendicular edges',()=>{
+ const expectPoints=(actual:ReturnType<typeof corners>,expected:ReturnType<typeof corners>)=>{expect(actual).toHaveLength(expected.length);actual.forEach((p,i)=>{expect(p.x).toBeCloseTo(expected[i].x,10);expect(p.z).toBeCloseTo(expected[i].z,10);});};
+ const outlines={
+  convex:[{x:0,z:0},{x:40,z:.8},{x:46,z:18},{x:24,z:33},{x:0,z:25}],
+  concave:[{x:0,z:0},{x:40,z:.8},{x:46,z:20},{x:25,z:14},{x:30,z:34},{x:0,z:25}],
+ };
+ for(const [kind,vertices] of Object.entries(outlines))for(const direction of [0,1,2,3])it(`${kind} direction ${direction} keeps slanted edges through layout, save and editing`,()=>{
+  const bounds=polygonRect(vertices),irregular={width:bounds.width,depth:bounds.depth,outline:bounds.outline};
+  expectPoints(corners(bounds),vertices);expect(validOutline(irregular)).toBe(true);
+  const layout=autoLayout(irregular,[],{...options,direction,module:defaultModule});expect(layout.count).toBeGreaterThan(0);
+  for(const a of layout.arrays)expect(polygonContains(irregular.outline,corners(footprint(a)),options.edge)).toBe(true);
+  const r={...applyRegionForm(newRoof(),'polygon'),...bounds,roof:irregular,arrays:layout.arrays};
+  expect(r.pitch).toBeUndefined();
+  const file:WorkspaceFile={version:3,name:'Irregular roof',roofs:[r],activeId:r.id,solarHour:11,backgroundColor:'#ffffff',groundColor:'#cccccc'};
+  const restored=parseWorkspace(JSON.stringify(file)).roofs[0];expect(restored.roof.outline).toEqual(irregular.outline);expect(footprintArea(restored.roof)).toBe(footprintArea(irregular));
+  const changed=vertices.map((p,i)=>i===1?{x:p.x-1,z:p.z+1.3}:p),edited=reshapeRegion([restored],r.id,polygonRect(changed))[0];
+  expectPoints(corners(roofRect(edited)),changed);expect(edited.arrays).toEqual([]);
+ });
+});
